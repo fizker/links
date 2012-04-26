@@ -1,0 +1,21 @@
+{
+	"author": "Benjamin Horsleben <benjamin@fizkerinc.dk>",
+	"name": "links",
+	"description": "A simple links-repository.",
+	"version": "0.0.0",
+	"repository": {
+	"type": "git",
+	"url": "git://github.com/fizker/links.git"
+	},
+	"engines": {
+	"node": "~0.6.10"
+	},
+	"dependencies": {
+		"express": "2.5.9",
+		"hogan.js": "2.0.0"
+	},
+	"devDependencies": {
+		"mocha": "1.0.2"
+	},
+	"optionalDependencies": {}
+}
