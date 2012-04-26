@@ -6,4 +6,6 @@ function setupRoutes(http) {
 	http.get('/', function(request, response) {
 		response.render('index');
 	});
+
+	require('./links')(http);
 };

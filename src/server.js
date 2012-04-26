@@ -17,6 +17,7 @@ var express = require('express')
 http.set('view engine', 'mustache');
 http.set('views', __dirname + '/../views');
 http.set('view options', { layout: false });
+http.use(express.bodyParser());
 http.register('.mustache', {
 	compile: function() {
 		var t = hogan.compile.apply(hogan, arguments);
