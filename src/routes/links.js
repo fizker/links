@@ -13,13 +13,17 @@ function setupRoutes(http) {
 };
 
 function allLinks(request, response) {
-	response.send(Object.keys(links).map(function(key) {
-		return links[key];
-	}));
+	response.view = 'links';
+	response.send({
+		links: Object.keys(links).map(function(key) {
+			return links[key];
+		})
+	});
 };
 function getLink(request, response) {
 	var url = request.params.url
 	  , link = links[url]
+	response.view = 'link';
 
 	if(!link) {
 		response.send(404);
@@ -31,12 +35,14 @@ function getLink(request, response) {
 function putLink(request, response) {
 	var url = request.params.url
 	  , link = request.body
+	response.view = 'link';
 
 	links[url] = link;
 	response.send(link);
 };
 function deleteLink(request, response) {
 	var url = request.params.url
+	response.view = 'link';
 
 	delete links[url];
 	response.send(200);
