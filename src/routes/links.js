@@ -13,11 +13,10 @@ function setupRoutes(http) {
 };
 
 function allLinks(request, response) {
-	response.render('links', {
-		links: Object.keys(links).map(function(key) {
+	response.render('links', Object.keys(links)
+		.map(function(key) {
 			return links[key];
-		})
-	});
+		}));
 };
 function getLink(request, response) {
 	var url = request.params.url

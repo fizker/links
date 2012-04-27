@@ -34,13 +34,26 @@ function config(http) {
 
 function acceptOutput(http) {
 	return function(request, response, next) {
-		if(!request.accepts('html')) {
-			var render = response.render
+		var render = response.render
+		if(request.accepts('html')) {
+			response.render = function(view, options, cb) {
+				var opts = {};
+				opts[view] = options;
+				response.render = render;
+				response.render(view, opts, cb);
+			};
+			next();
+			return;
+		}
 
-			response.render = function(views, options) {
+		if(request.accepts('json')) {
+			response.render = function(view, options) {
 				response.send(options, options.status || 200);
 			};
+			next();
+			return;
 		}
-		next();
+
+		response.send(406);
 	}
 };
