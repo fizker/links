@@ -13,8 +13,7 @@ function setupRoutes(http) {
 };
 
 function allLinks(request, response) {
-	response.view = 'links';
-	response.send({
+	response.render('links', {
 		links: Object.keys(links).map(function(key) {
 			return links[key];
 		})
@@ -23,27 +22,24 @@ function allLinks(request, response) {
 function getLink(request, response) {
 	var url = request.params.url
 	  , link = links[url]
-	response.view = 'link';
 
 	if(!link) {
-		response.send(404);
+		response.render('404', { status: 404 });
 		return;
 	}
 
-	response.send(link);
+	response.render('link', link);
 };
 function putLink(request, response) {
 	var url = request.params.url
 	  , link = request.body
-	response.view = 'link';
 
 	links[url] = link;
-	response.send(link);
+	response.render('link', link);
 };
 function deleteLink(request, response) {
 	var url = request.params.url
-	response.view = 'link';
 
 	delete links[url];
-	response.send(200);
+	response.render('link.del', 200);
 };
