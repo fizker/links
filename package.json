@@ -15,7 +15,12 @@
 		"hogan.js": "2.0.0"
 	},
 	"devDependencies": {
-		"mocha": "1.0.2"
+		"mocha": "1.0.2",
+		"chai": "0.5.2"
 	},
-	"optionalDependencies": {}
+	"optionalDependencies": {},
+	"scripts": {
+		"test": "mocha"
+	},
+	"private": true
 }
