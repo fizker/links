@@ -76,5 +76,5 @@ function deleteLink(request, response) {
 	var url = request.params.url
 
 	delete links[url];
-	response.render('link.del', 200);
+	response.render('link.del.mustache', { status: 200 });
 };
