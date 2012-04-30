@@ -4,12 +4,15 @@ describe('routes.links.js', function() {
 	  , sinon = require('sinon')
 	  , slice = Array.prototype.slice
 	  , caller = function(callstack, request, response) {
-			var i = 0;
+			var i = 0
 			function next(err) {
-				if(err) throw err;
+				caller.error = err;
+				if(err) {
+					return;
+				}
 				var func = callstack[i++];
 				if(func) func(request, response, next);
-			}
+			};
 			next();
 		}
 	  , response
@@ -47,18 +50,38 @@ describe('routes.links.js', function() {
 		routes(http);
 	});
 	describe('When posting to "/links"', function() {
-		beforeEach(function() {
-			request = {
-					params: {},
-					body: {
-						url: 'abc',
-						title: 'def'
+		describe('and the data is invalid', function() {
+			beforeEach(function() {
+				request = {
+						params: {},
+						body: {
+							title: 'def'
+						}
 					}
-				}
-			caller(http.routes.post['/links'], request, response);
+				caller(http.routes.post['/links'], request, response);
+			});
+			it('should give an error 400', function() {
+				var options = response.render.lastCall.args[1];
+				expect(options.status).to.equal(400);
+			});
+			it('should call next with an error', function() {
+				expect(caller.error).to.exist;
+			});
 		});
-		it('should store the link', function() {
-			expect(routes.links['abc']).to.eql({ url: 'abc', title: 'def'});
+		describe('and the data is valid', function() {
+			beforeEach(function() {
+				request = {
+						params: {},
+						body: {
+							url: 'abc',
+							title: 'def'
+						}
+					}
+				caller(http.routes.post['/links'], request, response);
+			});
+			it('should store the link', function() {
+				expect(routes.links['abc']).to.eql({ url: 'abc', title: 'def'});
+			});
 		});
 	});
 	describe('When making delete-request', function() {

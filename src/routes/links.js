@@ -19,7 +19,7 @@ function validateLink(request, response, next) {
 	  , link = request.body
 	  , error
 
-	if(!link) {
+	if(!link || link.url == null) {
 		error = 'No link given';
 		response.render('400', { status: 400, error: error });
 		next(new Error(error));
