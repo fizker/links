@@ -17,6 +17,7 @@ function config(http) {
 		http.set('view engine', 'mustache');
 		http.set('views', viewsDir);
 		http.set('view options', { layout: false });
+		http.use(express.static(path.join(__dirname, '../../static')));
 		http.use(express.bodyParser());
 		http.use(acceptOutput(http));
 
