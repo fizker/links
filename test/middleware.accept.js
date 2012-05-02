@@ -49,6 +49,20 @@ describe('middleware.accept.js', function() {
 				expect(renderSpy.lastCall.args[1].view).to.eql({a:1,b:2});
 			});
 		});
+		describe('and rendered with a complex view-name', function() {
+			it('should use the first dot-part as wrap-name', function() {
+				response.render('view.complex', {a:1, b:2});
+				expect(renderSpy.lastCall.args[1].view).to.eql({a:1,b:2});
+			});
+			it('should use the views actual name, and not folders', function() {
+				response.render('folder/view', {a:1, b:2});
+				expect(renderSpy.lastCall.args[1].view).to.eql({a:1,b:2});
+			});
+			it('should work with multiple folders', function() {
+				response.render('folder/folder/view.suffix', {a:1, b:2});
+				expect(renderSpy.lastCall.args[1].view).to.eql({a:1,b:2});
+			});
+		});
 	});
 	describe('When called with accept header "application/json"', function() {
 		beforeEach(function() {

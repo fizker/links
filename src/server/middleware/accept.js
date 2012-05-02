@@ -2,12 +2,17 @@
 
 module.exports = accept;
 
+function getViewName(view) {
+	var folders = view.split('/');
+	return folders[folders.length-1].split('.')[0];
+};
+
 function accept(request, response, next) {
 		var render = response.render
 		if(request.accepts('html')) {
 			response.render = function(view, options, cb) {
 				var opts = {};
-				opts[view] = options;
+				opts[getViewName(view)] = options;
 				response.render = render;
 				response.render(view, opts, cb);
 			};
