@@ -17,7 +17,11 @@ function accept(request, response, next) {
 
 		if(request.accepts('json')) {
 			response.render = function(view, options) {
-				response.send(options, options.status || 200);
+				var status =
+						response.local('status')
+						|| (options && options.status)
+						|| 200
+				response.send(options, status);
 			};
 			next();
 			return;
