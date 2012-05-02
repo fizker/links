@@ -1,7 +1,6 @@
 describe('routes.links.js', function() {
 	var routes = require('../src/routes/links')
 	  , http
-	  , sinon = require('sinon')
 	  , slice = Array.prototype.slice
 	  , caller = function(callstack, request, response) {
 			var i = 0
@@ -45,6 +44,11 @@ describe('routes.links.js', function() {
 					if(val) this.locals[key] = val;
 					else return this.locals[key];
 				}
+			, headers: {}
+			, header: function(key, val) {
+					if(val) this.headers[key] = val;
+					else return this.headers[key];
+				}
 			};
 
 		routes(http);
@@ -81,6 +85,12 @@ describe('routes.links.js', function() {
 			});
 			it('should store the link', function() {
 				expect(routes.links['abc']).to.eql({ url: 'abc', title: 'def'});
+			});
+			it('should set location to point to the new link', function() {
+				expect(response.headers['location']).to.equal('/links/abc');
+			});
+			it('should set status code 201 (created)', function() {
+				expect(response.locals.status).to.equal(201);
 			});
 		});
 	});

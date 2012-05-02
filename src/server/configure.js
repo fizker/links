@@ -19,7 +19,7 @@ function config(http) {
 		http.set('view options', { layout: false });
 		http.use(express.static(path.join(__dirname, '../../static')));
 		http.use(express.bodyParser());
-		http.use(acceptOutput(http));
+		http.use(require('./middleware/accept'));
 
 		http.register('.mustache', {
 			compile: function() {
@@ -30,31 +30,5 @@ function config(http) {
 				}
 			}
 		});
-	}
-};
-
-function acceptOutput(http) {
-	return function(request, response, next) {
-		var render = response.render
-		if(request.accepts('html')) {
-			response.render = function(view, options, cb) {
-				var opts = {};
-				opts[view] = options;
-				response.render = render;
-				response.render(view, opts, cb);
-			};
-			next();
-			return;
-		}
-
-		if(request.accepts('json')) {
-			response.render = function(view, options) {
-				response.send(options, options.status || 200);
-			};
-			next();
-			return;
-		}
-
-		response.send(406);
 	}
 };

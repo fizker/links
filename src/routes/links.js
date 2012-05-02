@@ -3,6 +3,7 @@
 module.exports = setupRoutes;
 
 var links
+  , util = require('util')
 
 function setupRoutes(http) {
 	setupRoutes.links = links = {};
@@ -10,7 +11,7 @@ function setupRoutes(http) {
 
 	http.post('/links', validateLink, postLink);
 	http.get('/links/new', newLink);
-	http.get('/links/:url', validateLink, getLink);
+	http.get('/links/:url', getLink);
 	http.put('/links/:url', validateLink, putLink);
 	http.del('/links/:url', deleteLink);
 };
@@ -21,14 +22,14 @@ function validateLink(request, response, next) {
 
 	if(!link || link.url == null) {
 		error = 'No link given';
-		response.render('400', { status: 400, error: error });
+		response.render('errors/400', { status: 400, error: error });
 		next(new Error(error));
 		return;
 	}
 	if(url !== undefined) {
 		if(url !== link.url) {
 			error = 'URL does not match';
-			response.render('400', { status: 400, error: error });
+			response.render('errors/400', { status: 400, error: error });
 			next(new Error(error));
 			return;
 		}
@@ -50,7 +51,7 @@ function getLink(request, response) {
 	  , link = links[url]
 
 	if(!link) {
-		response.render('404', { status: 404 });
+		response.render('errors/404', { status: 404 });
 		return;
 	}
 
@@ -63,6 +64,9 @@ function postLink(request, response) {
 
 	links[url] = link;
 	response.local('message', 'link created');
+	response.local('status', 201);
+	response.header('location', util.format('/links/%s', url));
+	response.render('link.post.mustache', link);
 	allLinks(request, response);
 };
 function putLink(request, response) {
