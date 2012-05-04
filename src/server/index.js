@@ -1,13 +1,25 @@
 'use strict';
 
+module.exports.start = start;
+
 var express = require('express')
 //  , consolidate = require('consolidate')
-  , http = express.createServer()
   , port = 8080
+  , server
+  , http
 
-http.configure(require('./configure')(http));
+function start(options, callback) {
+	options.http = http = express.createServer();
+	server = {
+		port: options.port || port,
+		http: http
+	};
 
-require('./../routes')(http);
+	http.configure(require('./configure')(options));
 
-http.listen(port);
-console.log('Server listening on port %s', port);
+	require('./../routes')(options);
+
+	http.listen(port);
+
+	callback(server);
+};

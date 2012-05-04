@@ -33,7 +33,10 @@ function open(options, callback) {
 	});
 };
 
-function close(callback) {};
+function close(callback) {
+	db.close();
+	callback();
+};
 
 var links = {
 	set: setLink,
