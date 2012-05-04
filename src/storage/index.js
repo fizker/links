@@ -5,6 +5,7 @@ module.exports = {
 };
 
 var mongo = require('mongodb')
+  , links = require('./links')
   , server
   , db
   , storage
@@ -26,6 +27,8 @@ function open(options, callback) {
 	server = new mongo.Server(storage.host, storage.port, { auto_reconnect: true });
 	db = new mongo.Db(storage.dbName, server)
 
+	storage.links = links(db);
+
 	db.open(function(err) {
 		if(err) { return callback(err); }
 
@@ -36,35 +39,4 @@ function open(options, callback) {
 function close(callback) {
 	db.close();
 	callback();
-};
-
-var links = {
-	add: setLink,
-	del: delLink,
-	get: getLink
-};
-
-function setLink(link, callback) {
-	db.collection('links', function(err, collection) {
-		collection.save(link, callback);
-	});
-};
-function delLink(url, callback) {
-	var query = {
-		url: url
-	};
-	db.collection('links', function(err, list) {
-		list.findAndModify(query, {}, null, { remove: true }, callback);
-	});
-};
-function getLink(url, callback) {
-	if(!callback) {
-		callback = url;
-		url = null;
-	}
-
-	db.collection('links', function(err, list) {
-		if(err) return callback(err);
-		list.find().toArray(callback);
-	});
 };
