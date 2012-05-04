@@ -39,11 +39,32 @@ function close(callback) {
 };
 
 var links = {
-	set: setLink,
-	rm: rmLink,
-	all: allLinks
+	add: setLink,
+	del: delLink,
+	get: getLink
 };
 
-function setLink() {};
-function rmLink() {};
-function allLinks() {};
+function setLink(link, callback) {
+	db.collection('links', function(err, collection) {
+		collection.save(link, callback);
+	});
+};
+function delLink(url, callback) {
+	var query = {
+		url: url
+	};
+	db.collection('links', function(err, list) {
+		list.findAndModify(query, {}, null, { remove: true }, callback);
+	});
+};
+function getLink(url, callback) {
+	if(!callback) {
+		callback = url;
+		url = null;
+	}
+
+	db.collection('links', function(err, list) {
+		if(err) return callback(err);
+		list.find().toArray(callback);
+	});
+};
