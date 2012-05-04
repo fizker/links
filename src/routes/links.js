@@ -4,8 +4,13 @@ module.exports = setupRoutes;
 
 var links
   , util = require('util')
+  , db
 
-function setupRoutes(http) {
+function setupRoutes(options) {
+	var http = options.http
+
+	db = options.storage.links;
+
 	setupRoutes.links = links = {};
 	http.get('/links', allLinks);
 
