@@ -120,6 +120,9 @@ describe('routes.links.js', function() {
 		describe('with valid data', function() {
 			describe('and there is already data there', function() {
 				beforeEach(function() {
+					storage.add.yields(null, {
+						url: 'after adding'
+					});
 					routes.links['abc'] = { text: 'old' };
 					request = {
 						params: {
@@ -139,9 +142,15 @@ describe('routes.links.js', function() {
 						text: 'def'
 					});
 				});
+				it('should render the new link', function() {
+					expect(response.render).to.have.been.calledWith('link', {
+						url: 'after adding'
+					});
+				});
 			});
 			describe('and there is no data there', function() {
 				beforeEach(function() {
+					storage.add.yields(null, { url: 'after adding' });
 					request = {
 						params: {
 							url: 'http://a.b/c'
@@ -161,6 +170,11 @@ describe('routes.links.js', function() {
 						encodedUrl: 'http%3A%2F%2Fa.b%2Fc',
 						url: 'http://a.b/c',
 						'text': 'def'
+					});
+				});
+				it('should render the new link', function() {
+					expect(response.render).to.have.been.calledWith('link', {
+						url: 'after adding'
 					});
 				});
 			});
@@ -190,6 +204,11 @@ describe('routes.links.js', function() {
 		});
 		describe('and the data is valid', function() {
 			beforeEach(function() {
+				storage.add.yields(null, {
+					encodedUrl: 'http%3A%2F%2Fa.b%2Fc',
+					url: 'http://a.b/c',
+					title: 'def'
+				});
 				request = {
 						params: {},
 						body: {
@@ -219,7 +238,7 @@ describe('routes.links.js', function() {
 	});
 	describe('When making delete-request', function() {
 		beforeEach(function() {
-			routes.links['abc'] = {};
+			storage.del.yields(null, { url: 'abc' });
 			request = {
 					params: {
 						url: 'abc'

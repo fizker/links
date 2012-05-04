@@ -76,23 +76,25 @@ function postLink(request, response) {
 	var link = request.body
 	  , url = link.url
 
-	db.add(link);
-	response.local('message', 'link created');
-	response.local('status', 201);
-	response.header('location', util.format('/links/%s', link.encodedUrl));
-	response.render('link.post.mustache', link);
-	allLinks(request, response);
+	db.add(link, function(err, link) {
+		response.local('message', 'link created');
+		response.local('status', 201);
+		response.header('location', util.format('/links/%s', link.encodedUrl));
+		response.render('link.post.mustache', link);
+	});
 };
 function putLink(request, response) {
 	var url = request.params.url
 	  , link = request.body
 
-	db.add(link);
-	response.render('link', link);
+	db.add(link, function(err, link) {
+		response.render('link', link);
+	});
 };
 function deleteLink(request, response) {
 	var url = request.params.url
 
-	db.del(url);
-	response.render('link.del.mustache', { status: 200 });
+	db.del(url, function(err, link) {
+		response.render('link.del.mustache', { status: 200 });
+	});
 };
