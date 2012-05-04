@@ -1,7 +1,6 @@
 describe('routes.links.js', function() {
 	var routes = require('../src/routes/links')
 	  , http
-	  , sinon = require('sinon')
 	  , slice = Array.prototype.slice
 	  , caller = function(callstack, request, response) {
 			var i = 0
@@ -45,9 +44,102 @@ describe('routes.links.js', function() {
 					if(val) this.locals[key] = val;
 					else return this.locals[key];
 				}
+			, headers: {}
+			, header: function(key, val) {
+					if(val) this.headers[key] = val;
+					else return this.headers[key];
+				}
 			};
 
 		routes(http);
+	});
+	describe('When getting "/links/abc"', function() {
+		beforeEach(function() {
+			routes.links['abc'] = { url: 'abc' };
+			request = {
+				params: {
+					url: 'abc'
+				}
+			};
+			caller(http.routes.get['/links/:url'], request, response);
+		});
+		it('should return the requested link', function() {
+			var links = response.render.lastCall.args[1];
+			expect(links).to.eql({ url: 'abc' });
+		});
+	});
+	describe('When getting "/links"', function() {
+		beforeEach(function() {
+			routes.links['abc'] = { url: 'abc' };
+			routes.links['def'] = { url: 'def' };
+			request = {};
+			caller(http.routes.get['/links'], request, response);
+		});
+		it('should return a list of links', function() {
+			var links = response.render.lastCall.args[1];
+			expect(links).to.eql([
+				{ url: 'abc' }, { url: 'def' }
+			]);
+		});
+	});
+	describe('When putting to "/links/abc"', function() {
+		describe('with invalid data', function() {
+			beforeEach(function() {
+				request = {
+					params: {
+						url: 'abc'
+					},
+					body: {
+						text: 'def'
+					}
+				};
+				caller(http.routes.put['/links/:url'], request, response);
+			});
+			it('should call next with error', function() {
+				expect(caller.error).to.exist;
+			});
+			it('should return status code 400', function() {
+				var options = response.render.lastCall.args[1];
+				expect(options.status).to.equal(400);
+			});
+		});
+		describe('with valid data', function() {
+			describe('and there is already data there', function() {
+				beforeEach(function() {
+					routes.links['abc'] = { text: 'old' };
+					request = {
+						params: {
+							url: 'abc'
+						},
+						body: {
+							url: 'abc',
+							text: 'def'
+						}
+					};
+					caller(http.routes.put['/links/:url'], request, response);
+				});
+				it('should be replaced', function() {
+					expect(routes.links['abc']).to.eql({ url: 'abc', 'text': 'def' });
+				});
+			});
+			describe('and there is no data there', function() {
+				beforeEach(function() {
+					request = {
+						params: {
+							url: 'abc'
+						},
+						body: {
+							url: 'abc',
+							text: 'def'
+						}
+					};
+					caller(http.routes.put['/links/:url'], request, response);
+				});
+				it('should be created', function() {
+					expect(routes.links['abc']).to.eql({ url: 'abc', 'text': 'def' });
+				});
+			});
+		});
 	});
 	describe('When posting to "/links"', function() {
 		describe('and the data is invalid', function() {
@@ -81,6 +173,12 @@ describe('routes.links.js', function() {
 			});
 			it('should store the link', function() {
 				expect(routes.links['abc']).to.eql({ url: 'abc', title: 'def'});
+			});
+			it('should set location to point to the new link', function() {
+				expect(response.headers['location']).to.equal('/links/abc');
+			});
+			it('should set status code 201 (created)', function() {
+				expect(response.locals.status).to.equal(201);
 			});
 		});
 	});
