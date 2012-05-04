@@ -82,7 +82,7 @@ describe('routes.links.js', function() {
 			]);
 		});
 	});
-	describe('When putting to "/links/abc"', function() {
+	describe('When putting to "/links/:url"', function() {
 		describe('with invalid data', function() {
 			beforeEach(function() {
 				request = {
@@ -119,24 +119,27 @@ describe('routes.links.js', function() {
 					caller(http.routes.put['/links/:url'], request, response);
 				});
 				it('should be replaced', function() {
-					expect(routes.links['abc']).to.eql({ url: 'abc', 'text': 'def' });
+					expect(routes.links['abc']).to.eql({ encodedUrl: 'abc', url: 'abc', 'text': 'def' });
 				});
 			});
 			describe('and there is no data there', function() {
 				beforeEach(function() {
 					request = {
 						params: {
-							url: 'abc'
+							url: 'http://a.b/c'
 						},
 						body: {
-							url: 'abc',
+							url: 'http://a.b/c',
 							text: 'def'
 						}
 					};
 					caller(http.routes.put['/links/:url'], request, response);
 				});
 				it('should be created', function() {
-					expect(routes.links['abc']).to.eql({ url: 'abc', 'text': 'def' });
+					expect(routes.links['http://a.b/c']).to.exist;
+				});
+				it('should add an encodedUrl version of the url', function() {
+					expect(routes.links['http://a.b/c']).to.eql({ encodedUrl: 'http%3A%2F%2Fa.b%2Fc', url: 'http://a.b/c', 'text': 'def' });
 				});
 			});
 		});
@@ -165,17 +168,24 @@ describe('routes.links.js', function() {
 				request = {
 						params: {},
 						body: {
-							url: 'abc',
+							url: 'http://a.b/c',
 							title: 'def'
 						}
 					}
 				caller(http.routes.post['/links'], request, response);
 			});
 			it('should store the link', function() {
-				expect(routes.links['abc']).to.eql({ url: 'abc', title: 'def'});
+				expect(routes.links['http://a.b/c']).to.exist;
+			});
+			it('should add an encoded url', function() {
+				expect(routes.links['http://a.b/c']).to.eql({
+					encodedUrl: 'http%3A%2F%2Fa.b%2Fc',
+					url: 'http://a.b/c',
+					title: 'def'
+				});
 			});
 			it('should set location to point to the new link', function() {
-				expect(response.headers['location']).to.equal('/links/abc');
+				expect(response.headers['location']).to.equal('/links/http%3A%2F%2Fa.b%2Fc');
 			});
 			it('should set status code 201 (created)', function() {
 				expect(response.locals.status).to.equal(201);

@@ -26,6 +26,7 @@ function validateLink(request, response, next) {
 		next(new Error(error));
 		return;
 	}
+	link.encodedUrl = encodeURIComponent(link.url);
 	if(url !== undefined) {
 		if(url !== link.url) {
 			error = 'URL does not match';
@@ -65,7 +66,7 @@ function postLink(request, response) {
 	links[url] = link;
 	response.local('message', 'link created');
 	response.local('status', 201);
-	response.header('location', util.format('/links/%s', url));
+	response.header('location', util.format('/links/%s', link.encodedUrl));
 	response.render('link.post.mustache', link);
 	allLinks(request, response);
 };
