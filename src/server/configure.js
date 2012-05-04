@@ -12,7 +12,8 @@ var express = require('express')
 	.compile(fs
 		.readFileSync(path.join(viewsDir, 'layout.mustache'), 'utf8'))
 
-function config(http) {
+function config(options) {
+	var http = options.http
 	return function() {
 		http.set('view engine', 'mustache');
 		http.set('views', viewsDir);

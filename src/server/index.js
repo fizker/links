@@ -21,5 +21,5 @@ function start(options, callback) {
 
 	http.listen(port);
 
-	callback(server);
+	callback(null, server);
 };
