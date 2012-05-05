@@ -1,6 +1,7 @@
 describe('routes.links.js', function() {
 	var routes = require('../src/routes/links')
 	  , http
+	  , storage
 	  , slice = Array.prototype.slice
 	  , caller = function(callstack, request, response) {
 			var i = 0
@@ -50,12 +51,20 @@ describe('routes.links.js', function() {
 					else return this.headers[key];
 				}
 			};
+		storage = 
+			{ get: sinon.stub()
+			, del: sinon.stub()
+			, add: sinon.stub()
+			};
 
-		routes(http);
+		routes({
+			http: http,
+			storage: { links: storage }
+		});
 	});
 	describe('When getting "/links/abc"', function() {
 		beforeEach(function() {
-			routes.links['abc'] = { url: 'abc' };
+			storage.get.withArgs('abc').yields(null, { url: 'abc' });
 			request = {
 				params: {
 					url: 'abc'
@@ -70,8 +79,10 @@ describe('routes.links.js', function() {
 	});
 	describe('When getting "/links"', function() {
 		beforeEach(function() {
-			routes.links['abc'] = { url: 'abc' };
-			routes.links['def'] = { url: 'def' };
+			storage.get.withArgs().yields(null,
+				[{ url: 'abc' }
+				,{ url: 'def' }
+				]);
 			request = {};
 			caller(http.routes.get['/links'], request, response);
 		});
@@ -95,6 +106,9 @@ describe('routes.links.js', function() {
 				};
 				caller(http.routes.put['/links/:url'], request, response);
 			});
+			it('should not store the link', function() {
+				expect(storage.add).not.to.have.been.called;
+			});
 			it('should call next with error', function() {
 				expect(caller.error).to.exist;
 			});
@@ -106,6 +120,9 @@ describe('routes.links.js', function() {
 		describe('with valid data', function() {
 			describe('and there is already data there', function() {
 				beforeEach(function() {
+					storage.add.yields(null, {
+						url: 'after adding'
+					});
 					routes.links['abc'] = { text: 'old' };
 					request = {
 						params: {
@@ -119,11 +136,21 @@ describe('routes.links.js', function() {
 					caller(http.routes.put['/links/:url'], request, response);
 				});
 				it('should be replaced', function() {
-					expect(routes.links['abc']).to.eql({ encodedUrl: 'abc', url: 'abc', 'text': 'def' });
+					expect(storage.add).to.have.been.calledWith({
+						encodedUrl: 'abc',
+						url: 'abc',
+						text: 'def'
+					});
+				});
+				it('should render the new link', function() {
+					expect(response.render).to.have.been.calledWith('link', {
+						url: 'after adding'
+					});
 				});
 			});
 			describe('and there is no data there', function() {
 				beforeEach(function() {
+					storage.add.yields(null, { url: 'after adding' });
 					request = {
 						params: {
 							url: 'http://a.b/c'
@@ -136,10 +163,19 @@ describe('routes.links.js', function() {
 					caller(http.routes.put['/links/:url'], request, response);
 				});
 				it('should be created', function() {
-					expect(routes.links['http://a.b/c']).to.exist;
+					expect(storage.add).to.have.been.called;
 				});
 				it('should add an encodedUrl version of the url', function() {
-					expect(routes.links['http://a.b/c']).to.eql({ encodedUrl: 'http%3A%2F%2Fa.b%2Fc', url: 'http://a.b/c', 'text': 'def' });
+					expect(storage.add).to.have.been.calledWith({
+						encodedUrl: 'http%3A%2F%2Fa.b%2Fc',
+						url: 'http://a.b/c',
+						'text': 'def'
+					});
+				});
+				it('should render the new link', function() {
+					expect(response.render).to.have.been.calledWith('link', {
+						url: 'after adding'
+					});
 				});
 			});
 		});
@@ -155,6 +191,9 @@ describe('routes.links.js', function() {
 					}
 				caller(http.routes.post['/links'], request, response);
 			});
+			it('should not store the link', function() {
+				expect(storage.add).not.to.have.been.called;
+			});
 			it('should give an error 400', function() {
 				var options = response.render.lastCall.args[1];
 				expect(options.status).to.equal(400);
@@ -165,6 +204,11 @@ describe('routes.links.js', function() {
 		});
 		describe('and the data is valid', function() {
 			beforeEach(function() {
+				storage.add.yields(null, {
+					encodedUrl: 'http%3A%2F%2Fa.b%2Fc',
+					url: 'http://a.b/c',
+					title: 'def'
+				});
 				request = {
 						params: {},
 						body: {
@@ -175,10 +219,10 @@ describe('routes.links.js', function() {
 				caller(http.routes.post['/links'], request, response);
 			});
 			it('should store the link', function() {
-				expect(routes.links['http://a.b/c']).to.exist;
+				expect(storage.add).to.have.been.called;
 			});
 			it('should add an encoded url', function() {
-				expect(routes.links['http://a.b/c']).to.eql({
+				expect(storage.add).to.have.been.calledWith({
 					encodedUrl: 'http%3A%2F%2Fa.b%2Fc',
 					url: 'http://a.b/c',
 					title: 'def'
@@ -194,7 +238,7 @@ describe('routes.links.js', function() {
 	});
 	describe('When making delete-request', function() {
 		beforeEach(function() {
-			routes.links['abc'] = {};
+			storage.del.yields(null, { url: 'abc' });
 			request = {
 					params: {
 						url: 'abc'
@@ -203,7 +247,7 @@ describe('routes.links.js', function() {
 			caller(http.routes.del['/links/:url'], request, response);
 		});
 		it('should remove the requested link', function() {
-			expect(routes.links['abc']).to.not.exist;
+			expect(storage.del).to.have.been.calledWith('abc');
 		});
 		it('should end with code 200', function() {
 			var responseCode = response.render.lastCall.args[1].status;

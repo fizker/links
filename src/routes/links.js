@@ -4,8 +4,13 @@ module.exports = setupRoutes;
 
 var links
   , util = require('util')
+  , db
 
-function setupRoutes(http) {
+function setupRoutes(options) {
+	var http = options.http
+
+	db = options.storage.links;
+
 	setupRoutes.links = links = {};
 	http.get('/links', allLinks);
 
@@ -41,45 +46,55 @@ function newLink(request, response) {
 	response.render('link.edit.mustache');
 };
 function allLinks(request, response) {
-	response.render('links', Object.keys(links)
-		.map(function(key) {
-			return links[key];
-		}));
+	db.get(function(err, data) {
+		if(err) {
+			response.render('errors/500', { status: 500, error: err });
+			return;
+		}
+		response.render('links', data);
+	});
 };
 
 function getLink(request, response) {
 	var url = request.params.url
-	  , link = links[url]
 
-	if(!link) {
-		response.render('errors/404', { status: 404 });
-		return;
-	}
+	db.get(url, function(err, link) {
+		if(err) {
+			response.render('errors/500', { status: 500, error: err });
+			return;
+		};
+		if(!link) {
+			response.render('errors/404', { status: 404 });
+			return;
+		}
 
-	response.render('link', link);
+		response.render('link', link);
+	});
 };
 
 function postLink(request, response) {
 	var link = request.body
 	  , url = link.url
 
-	links[url] = link;
-	response.local('message', 'link created');
-	response.local('status', 201);
-	response.header('location', util.format('/links/%s', link.encodedUrl));
-	response.render('link.post.mustache', link);
-	allLinks(request, response);
+	db.add(link, function(err, link) {
+		response.local('message', 'link created');
+		response.local('status', 201);
+		response.header('location', util.format('/links/%s', link.encodedUrl));
+		response.render('link.post.mustache', link);
+	});
 };
 function putLink(request, response) {
 	var url = request.params.url
 	  , link = request.body
 
-	links[url] = link;
-	response.render('link', link);
+	db.add(link, function(err, link) {
+		response.render('link', link);
+	});
 };
 function deleteLink(request, response) {
 	var url = request.params.url
 
-	delete links[url];
-	response.render('link.del.mustache', { status: 200 });
+	db.del(url, function(err, link) {
+		response.render('link.del.mustache', { status: 200 });
+	});
 };
