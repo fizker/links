@@ -19,7 +19,14 @@ function start(options, callback) {
 
 	require('./../routes')(options);
 
-	http.listen(port);
-
-	callback(null, server);
+	http.listen(port, function(err) {
+		// TODO: If the port is in use, this is not actually called.
+		// We would want to look at that at some point.
+		if(err) {
+			return callback(err, {
+				port: options.port || port
+			});
+		}
+		callback(null, server);
+	});
 };
