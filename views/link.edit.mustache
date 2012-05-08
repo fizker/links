@@ -1,15 +1,15 @@
-<form action="/links" method="post">
+<form action=/links method=post>
 	<div>
-		<label for="link-title">Title:</label>
-		<input id="link-title" name="title" value="{{title}}">
+		<label for=link-title>Title:</label>
+		<input id=link-title name=title value="{{title}}">
 	</div>
 	<div>
-		<label for="link-url">URL:</label>
-		<input id="link-url" name="url" value="{{url}}">
+		<label for=link-url>URL:</label>
+		<input id=link-url name=url value="{{url}}">
 	</div>
 	<div>
-		<button type="reset">Reset</button>
-		<button type="submit">
+		<button type=reset>Reset</button>
+		<button type=submit>
 			{{#url}}Update link{{/url}}
 			{{^url}}Create link{{/url}}
 		</button>

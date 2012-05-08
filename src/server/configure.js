@@ -8,9 +8,13 @@ var express = require('express')
   , fs = require('fs')
 
   , viewsDir = path.join(__dirname, '../../views')
-  , layout = hogan
-	.compile(fs
-		.readFileSync(path.join(viewsDir, 'layout.mustache'), 'utf8'))
+  // We would want a dev-switch here, and use precompiled when not in dev mode.
+  , layout = { render: function(options) {
+			return hogan.compile(fs
+					.readFileSync(path.join(viewsDir, 'layout.mustache'), 'utf8'))
+				.render(options);
+		}
+	}
 
 function config(options) {
 	var http = options.http
