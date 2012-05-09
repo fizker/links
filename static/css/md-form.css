@@ -1,0 +1,23 @@
+.md-form {}
+
+.md-form-row {
+	display: -webkit-box;
+	max-width: 450px;
+}
+
+.md-form-lbl {
+	display: inline-block;
+	text-align: right;
+	vertical-align: top;
+}
+
+.md-form-inp-text,
+.md-form-text
+{
+	display: block;
+	-webkit-box-flex: 1;
+}
+
+.md-form-text {
+	height: 60px;
+}

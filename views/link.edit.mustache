@@ -1,11 +1,15 @@
-<form action=/links method=post>
-	<div>
-		<label for=link-title>Title:</label>
-		<input id=link-title name=title value="{{title}}">
+<form action=/links method=post class="md-form">
+	<div class="md-form-row">
+		<label class="md-form-lbl md-lnk-form-lbl" for=link-title>Title:</label>
+		<input class="md-form-inp-text" id=link-title name=title value="{{title}}">
 	</div>
-	<div>
-		<label for=link-url>URL:</label>
-		<input id=link-url name=url value="{{url}}">
+	<div class="md-form-row">
+		<label class="md-form-lbl md-lnk-form-lbl" for=link-url>URL:</label>
+		<input class="md-form-inp-text" id=link-url name=url value="{{url}}">
+	</div>
+	<div class="md-form-row">
+		<label class="md-form-lbl md-lnk-form-lbl" for=link-text>Description:</label>
+		<textarea class="md-form-text" id=link-text name=text>{{text}}</textarea>
 	</div>
 	<div>
 		<button type=reset>Reset</button>
