@@ -1,0 +1,11 @@
+.md-lnk-int {}
+.md-lnk-ext {
+	font-size: .8em;
+}
+
+.md-lnk-lst {
+	padding: 0;
+}
+.md-lnk-lst-itm {
+	list-style: none;
+}

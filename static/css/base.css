@@ -1,5 +1,6 @@
 a:-webkit-any-link {
 	color: #40e;
+	text-decoration: none;
 }
 a:hover {
 	color: green;
@@ -13,7 +14,8 @@ body {
 	background: -webkit-linear-gradient(top, #640303 0, #120a64 100%) fixed;
 
 	font-family: Cochin, helvetica, arial;
-	font-size: 12pt / 11pt;
+	font-size: 14pt;
+	line-height: 13pt;
 
 	padding: 0;
 	margin: 0;

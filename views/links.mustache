@@ -1,9 +1,11 @@
 <h1>Links</h1>
-<ul>
+<ul class="md-lnk-lst">
 {{^links}}
 <li>No links
 {{/links}}
 {{#links}}
-<li><a href=/links/{{encodedUrl}}>{{title}}</a>
+<li class="md-lnk-lst-itm">
+	<a class="md-lnk-int" href=/links/{{encodedUrl}}>{{title}}</a>
+	&lt;<a class="md-lnk-ext" href="{{url}}">{{url}}</a>&gt;
 {{/links}}
 </ul>
