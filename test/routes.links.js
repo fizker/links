@@ -62,6 +62,42 @@ describe('routes.links.js', function() {
 			storage: { links: storage }
 		});
 	});
+	describe('When getting "/links/:url/edit', function() {
+		describe('With a non-existing url', function() {
+			beforeEach(function() {
+				storage.get.yields(null, null);
+				request = {
+					params: {
+						url: 'abc'
+					}
+				};
+				caller(http.routes.get['/links/:url/edit'], request, response);
+			});
+			it('should return status 404', function() {
+				var data = response.render.lastCall.args[1];
+				expect(data.status).to.eql(404);
+			});
+		});
+		describe('With an existing url', function() {
+			beforeEach(function() {
+				storage.get.withArgs('abc').yields(null, { url: 'abc' });
+				request = {
+					params: {
+						url: 'abc'
+					}
+				};
+				caller(http.routes.get['/links/:url/edit'], request, response);
+			});
+			it('should return the link', function() {
+				var link = response.render.lastCall.args[1];
+				expect(link).to.eql({ url: 'abc' });
+			});
+			it('should present the link.edit view', function() {
+				var view = response.render.lastCall.args[0];
+				expect(view).to.match(/link\.edit/);
+			});
+		});
+	});
 	describe('When getting "/links/abc"', function() {
 		beforeEach(function() {
 			storage.get.withArgs('abc').yields(null, { url: 'abc' });

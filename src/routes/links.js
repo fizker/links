@@ -16,9 +16,12 @@ function setupRoutes(options) {
 
 	http.post('/links', validateLink, postLink);
 	http.get('/links/new', newLink);
+
 	http.get('/links/:url', getLink);
 	http.put('/links/:url', validateLink, putLink);
 	http.del('/links/:url', deleteLink);
+
+	http.get('/links/:url/edit', editLink);
 };
 function validateLink(request, response, next) {
 	var url = request.params && request.params.url
@@ -43,7 +46,25 @@ function validateLink(request, response, next) {
 	next();
 };
 function newLink(request, response) {
-	response.render('link.edit.mustache');
+	response.render('link.edit.mustache', {});
+};
+function editLink(request, response) {
+	var url = request.params.url
+
+	db.get(url, linkLoaded)
+
+	function linkLoaded(err, link) {
+		if(err) {
+			response.render('errors/500', { status: 500, error: err });
+			return;
+		}
+		if(!link) {
+			response.render('errors/404', { status: 404 });
+			return;
+		}
+
+		response.render('link.edit.mustache', link);
+	};
 };
 function allLinks(request, response) {
 	db.get(function(err, data) {
