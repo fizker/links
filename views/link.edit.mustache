@@ -1,5 +1,5 @@
 {{#link}}
-<form action=/links method=post class="md-form">
+<form action=/links{{#url}}/{{encodedUrl}}{{/url}} method=post class="md-form">
 	<div class="md-form-row">
 		<label class="md-form-lbl md-lnk-form-lbl" for=link-title>Title:</label>
 		<input class="md-form-inp-text" id=link-title name=title value="{{title}}">

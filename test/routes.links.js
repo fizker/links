@@ -129,6 +129,35 @@ describe('routes.links.js', function() {
 			]);
 		});
 	});
+	describe('When posting to "/links/:url"', function() {
+		beforeEach(function() {
+			storage.del.withArgs('abc').yields({ url: 'abc' });
+			storage.add.yields({ url: 'abc' });
+			request = {
+				params: {
+					url: 'abc'
+				},
+				body: {
+					url: 'def'
+				}
+			};
+			caller(http.routes.post['/links/:url'], request, response);
+		});
+		it('should not fail for different urls', function() {
+			var status = response.render.lastCall.args[1].status;
+			expect(status).not.to.satisfy(function(num) {
+				return num < 200 || num > 299;
+			});
+		});
+		it('should remove the old link', function() {
+			expect(storage.del)
+				.to.have.been.calledWith('abc');
+		});
+		it('should add the new link', function() {
+			var url = storage.add.lastCall.args[0].url
+			expect(url).to.eql('def');
+		});
+	});
 	describe('When putting to "/links/:url"', function() {
 		describe('with invalid data', function() {
 			beforeEach(function() {
