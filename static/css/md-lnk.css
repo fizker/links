@@ -9,3 +9,12 @@
 .md-lnk-lst-itm {
 	list-style: none;
 }
+
+.md-lnk-edit-btn {
+	font-size: 12pt;
+	display: sub;
+}
+
+.md-lnk-text {
+	white-space: pre;
+}
