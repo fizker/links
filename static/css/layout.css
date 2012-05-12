@@ -1,0 +1,29 @@
+.lnk-menu {
+	text-align: center;
+	margin: 0 0 10px;
+	padding: 0 0 10px;
+	border-bottom: dashed 1px black;
+}
+.lnk-menu a {
+	display: inline-block;
+}
+.lnk-menu a:not(:last-child) {
+	content: '|';
+	padding: 0 6px;
+	margin: 0 6px;
+	border-right: 1px solid black;
+}
+.lnk-menu a:hover {
+}
+
+.lnk-root {
+	width: 800px;
+	margin: 5vh auto;
+	box-shadow: black 1px 2px 5px;
+	max-width: 90vw;
+	min-height: 90vh;
+	background: rgba(255,255,255,.90);
+	border-radius: 10px;
+	padding: 20px;
+	box-sizing: border-box;
+}

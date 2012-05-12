@@ -30,7 +30,11 @@ function open(options, callback) {
 	storage.links = links(db);
 
 	db.open(function(err) {
-		if(err) { return callback(err); }
+		if(err) { return callback(err, {
+			host: options.host || host,
+			port: options.port || port,
+			dbName: options.dbName || dbName
+		}); }
 
 		callback(null, storage);
 	});

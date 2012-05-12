@@ -62,6 +62,42 @@ describe('routes.links.js', function() {
 			storage: { links: storage }
 		});
 	});
+	describe('When getting "/links/:url/edit', function() {
+		describe('With a non-existing url', function() {
+			beforeEach(function() {
+				storage.get.yields(null, null);
+				request = {
+					params: {
+						url: 'abc'
+					}
+				};
+				caller(http.routes.get['/links/:url/edit'], request, response);
+			});
+			it('should return status 404', function() {
+				var data = response.render.lastCall.args[1];
+				expect(data.status).to.eql(404);
+			});
+		});
+		describe('With an existing url', function() {
+			beforeEach(function() {
+				storage.get.withArgs('abc').yields(null, { url: 'abc' });
+				request = {
+					params: {
+						url: 'abc'
+					}
+				};
+				caller(http.routes.get['/links/:url/edit'], request, response);
+			});
+			it('should return the link', function() {
+				var link = response.render.lastCall.args[1];
+				expect(link).to.eql({ url: 'abc' });
+			});
+			it('should present the link.edit view', function() {
+				var view = response.render.lastCall.args[0];
+				expect(view).to.match(/link\.edit/);
+			});
+		});
+	});
 	describe('When getting "/links/abc"', function() {
 		beforeEach(function() {
 			storage.get.withArgs('abc').yields(null, { url: 'abc' });
@@ -91,6 +127,35 @@ describe('routes.links.js', function() {
 			expect(links).to.eql([
 				{ url: 'abc' }, { url: 'def' }
 			]);
+		});
+	});
+	describe('When posting to "/links/:url"', function() {
+		beforeEach(function() {
+			storage.del.withArgs('abc').yields({ url: 'abc' });
+			storage.add.yields({ url: 'abc' });
+			request = {
+				params: {
+					url: 'abc'
+				},
+				body: {
+					url: 'def'
+				}
+			};
+			caller(http.routes.post['/links/:url'], request, response);
+		});
+		it('should not fail for different urls', function() {
+			var status = response.render.lastCall.args[1].status;
+			expect(status).not.to.satisfy(function(num) {
+				return num < 200 || num > 299;
+			});
+		});
+		it('should remove the old link', function() {
+			expect(storage.del)
+				.to.have.been.calledWith('abc');
+		});
+		it('should add the new link', function() {
+			var url = storage.add.lastCall.args[0].url
+			expect(url).to.eql('def');
 		});
 	});
 	describe('When putting to "/links/:url"', function() {

@@ -11,7 +11,10 @@ var storage
 
 
 function storageOpened(err, st) {
-	if(err) throw err;
+	if(err) {
+		console.log('%s\nCould not create a connection to the database.', err.toString());
+		return;
+	}
 
 	console.log('Storage is running..');
 	storage = st;
@@ -22,8 +25,8 @@ function storageOpened(err, st) {
 };
 function serverStarted(err, srv) {
 	if(err) {
+		console.log('%s\nCould not create the web-server.', err.toString());
 		storage.close(function() {
-			throw err;
 		});
 	}
 
