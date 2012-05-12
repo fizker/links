@@ -25,6 +25,7 @@ function config(options) {
 		http.use(express.static(path.join(__dirname, '../../static')));
 		http.use(express.bodyParser());
 		http.use(require('./middleware/accept'));
+		http.use(require('connect-xcors')({}));
 
 		http.register('.mustache', {
 			compile: function() {
