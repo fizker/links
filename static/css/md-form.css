@@ -3,6 +3,7 @@
 .md-form-row {
 	display: -webkit-box;
 	max-width: 450px;
+	margin: 2px auto;
 }
 
 .md-form-lbl {
@@ -20,4 +21,10 @@
 
 .md-form-text {
 	height: 60px;
+}
+
+.md-form-btns {
+	max-width: 450px;
+	text-align: right;
+	margin: 10px auto 0;
 }
