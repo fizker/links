@@ -1,0 +1,10 @@
+<h1>Bookmarklets</h1>
+{{#bookmarklets}}
+<div>
+	<h2>{{title}}</h2>
+	<p>{{text}}</p>
+	<a href=javascript:{{encoded}}>Right-click to bookmark</a>
+	<p>Or copy it from this field into an existing bookmark:</p>
+	<textarea class="md-bkmrklt-cp">javascript:{{bookmarklet}}</textarea>
+</div>
+{{/bookmarklets}}
