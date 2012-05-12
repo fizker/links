@@ -13,7 +13,8 @@
 	"dependencies": {
 		"express": "2.5.9",
 		"hogan.js": "2.0.0",
-		"mongodb": "1.0.0"
+		"mongodb": "1.0.0",
+		"grunt": "0.3.9"
 	},
 	"devDependencies": {
 		"mocha": "1.0.2",
@@ -23,6 +24,7 @@
 	},
 	"optionalDependencies": {},
 	"scripts": {
+		"install": "node_modules/.bin/grunt",
 		"test": "mocha"
 	},
 	"private": true
