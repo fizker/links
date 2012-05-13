@@ -10,4 +10,5 @@ function setupRoutes(options) {
 	});
 
 	require('./links')(options);
+	require('./bookmarklets')(options);
 };

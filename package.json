@@ -2,7 +2,7 @@
 	"author": "Benjamin Horsleben <benjamin@fizkerinc.dk>",
 	"name": "links",
 	"description": "A simple links-repository.",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"repository": {
 	"type": "git",
 	"url": "git://github.com/fizker/links.git"
@@ -13,7 +13,9 @@
 	"dependencies": {
 		"express": "2.5.9",
 		"hogan.js": "2.0.0",
-		"mongodb": "1.0.0"
+		"mongodb": "1.0.0",
+		"grunt": "0.3.9",
+		"connect-xcors": "0.5.2"
 	},
 	"devDependencies": {
 		"mocha": "1.0.2",
@@ -23,6 +25,7 @@
 	},
 	"optionalDependencies": {},
 	"scripts": {
+		"install": "node_modules/.bin/grunt",
 		"test": "mocha"
 	},
 	"private": true

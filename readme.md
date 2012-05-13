@@ -26,10 +26,11 @@ Only major point-releases are listed. Struck-through numbers are finished.
 - <s>0.1</s>: Basic functionality in place.
 - <s>0.2</s>: Permanent storage (Mongo).
 - <s>0.3</s>: First shot at client-side UI.
-- 0.4: Bookmarklets.
+- <s>0.4</s>: Bookmarklets.
 - 0.5: Authorization (users, walls between links).
-- 0.6: Client-side UX (backbone, ajax, etc).
-- 0.7: One-page app (html routing, fallback to current model).
-- 0.8: Client-side optimization (concatenation, minification, gzip, etc.).
+- 0.6: Server-deployment (heroku, mongohq?).
+- 0.7: Client-side UX (backbone, ajax, etc).
+- 0.8: One-page app (html routing, fallback to current model).
+- 0.9: Client-side optimization (concatenation, minification, gzip, etc.).
 
 - 1.0: All done
