@@ -30,7 +30,7 @@ describe('storage.users.js', function() {
 			});
 			it('should pass true', function() {
 				expect(callback)
-					.to.have.been.calledWith(null, true);
+					.to.have.been.calledWith(null, { username: 'abc', password: 'def' });
 			});
 		});
 		describe('with invalid credentials', function() {
@@ -40,9 +40,9 @@ describe('storage.users.js', function() {
 					.yields(null);
 				storage.verify('abc', 'def', callback);
 			});
-			it('should pass false', function() {
+			it('should pass null', function() {
 				expect(callback)
-					.to.have.been.calledWith(null, false);
+					.to.have.been.calledWith(null, null);
 			});
 		});
 	});

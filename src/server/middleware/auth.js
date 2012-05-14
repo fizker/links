@@ -36,6 +36,13 @@ function handleHttpAuth(request, next) {
 	username = split[0];
 	password = split[1];
 
-	request.storage.users.verify(username, password, next);
+	request.storage.users.verify(username, password, function(err, user) {
+		if(err) {
+			return next(err);
+		}
+
+		request.user = user;
+		next(null, user);
+	});
 	return true;
 };

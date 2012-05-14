@@ -1,43 +1,15 @@
 describe('routes.links.js', function() {
 	var routes = require('../src/routes/links')
+	  , helper = require('./helpers/routes')
 	  , http
+	  , caller = helper.caller
 	  , storage
-	  , slice = Array.prototype.slice
-	  , caller = function(callstack, request, response) {
-			var i = 0
-			function next(err) {
-				caller.error = err;
-				if(err) {
-					return;
-				}
-				var func = callstack[i++];
-				if(func) func(request, response, next);
-			};
-			next();
-		}
 	  , response
 	  , request
+
 	beforeEach(function() {
-		http =
-			{ post: function(route) {
-					this.routes.post[route] = slice.call(arguments, 1);
-				}
-			, get: function(route) {
-					this.routes.get[route] = slice.call(arguments, 1);
-				}
-			, put: function(route) {
-					this.routes.put[route] = slice.call(arguments, 1);
-				}
-			, del: function(route) {
-					this.routes.del[route] = slice.call(arguments, 1);
-				}
-			, routes:
-				{get: {}
-				,post: {}
-				,put: {}
-				,del: {}
-				}
-			};
+		helper.setup();
+		http = helper.http;
 		response =
 			{ locals: {}
 			, render: sinon.spy()

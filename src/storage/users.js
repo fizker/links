@@ -19,7 +19,7 @@ function verifyUser(username, password, callback) {
 	db.collection('users', function(err, collection) {
 		var query = { username: username, password: password }
 		collection.findOne(query, function(err, data) {
-			callback(null, !!data);
+			callback(null, data || null);
 		})
 	});
 };

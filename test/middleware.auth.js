@@ -14,7 +14,7 @@ describe('middleware.auth.js', function() {
 			}
 		};
 		request.storage.users.verify.yields(null, false);
-		request.storage.users.verify.withArgs('valid', 'creds').yields(null, true);
+		request.storage.users.verify.withArgs('valid', 'creds').yields(null, { username: 'abc' });
 
 		response = {
 			send: sinon.stub(),
@@ -34,6 +34,10 @@ describe('middleware.auth.js', function() {
 			});
 			it('should call next', function() {
 				expect(nextSpy).to.have.been.calledWithExactly();
+			});
+			it('should attach user info to the request', function() {
+				expect(request.user)
+					.to.eql({ username: 'abc' });
 			});
 		});
 		describe('with invalid credentials', function() {
