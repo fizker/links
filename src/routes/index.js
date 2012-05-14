@@ -11,4 +11,5 @@ function setupRoutes(options) {
 
 	require('./links')(options);
 	require('./bookmarklets')(options);
+	require('./users')(options);
 };
