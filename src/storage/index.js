@@ -6,6 +6,7 @@ module.exports = {
 
 var mongo = require('mongodb')
   , links = require('./links')
+  , users = require('./users')
   , server
   , db
   , storage
@@ -28,6 +29,7 @@ function open(options, callback) {
 	db = new mongo.Db(storage.dbName, server)
 
 	storage.links = links(db);
+	storage.users = users(db);
 
 	db.open(function(err) {
 		if(err) { return callback(err, {
