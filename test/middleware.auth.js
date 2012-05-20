@@ -49,8 +49,8 @@ describe('middleware.auth.js', function() {
 				request.header.withArgs('Authorization').returns('Basic aW52YWxpZDpjcmVkcw==');
 				middleware(request, response, nextSpy);
 			});
-			it('should send http status 401', function() {
-				var status = response.render.lastCall.args[1].status;
+			it('should call next with error status 401', function() {
+				var status = nextSpy.lastCall.args[0].status;
 				expect(status).to.be.eql(401);
 			});
 		});
@@ -59,15 +59,9 @@ describe('middleware.auth.js', function() {
 		beforeEach(function() {
 			middleware(request, response, nextSpy);
 		});
-		it('should send http status 401', function() {
-			var status = response.render.lastCall.args[1].status;
+		it('should call next with error status 401', function() {
+			var status = nextSpy.lastCall.args[0].status;
 			expect(status).to.be.eql(401);
-		});
-		it('should request the 401 error page', function() {
-			var view = response.render.lastCall.args[0];
-			expect(view)
-				.to.have.string('401')
-				.and.to.have.string('errors');
 		});
 	});
 });

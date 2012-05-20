@@ -29,6 +29,10 @@ function config(options) {
 		http.use(express.bodyParser());
 		http.use(require('connect-xcors')({}));
 
+		http.use(http.router);
+
+		http.use(middleware.errors);
+
 		http.register('.mustache', {
 			compile: function() {
 				var t = hogan.compile.apply(hogan, arguments);

@@ -14,7 +14,7 @@ function auth(request, response, next) {
 		if(result) {
 			return next();
 		}
-		response.render('errors/401', { status: 401 });
+		return next({ status: 401 });
 	};
 }
 
