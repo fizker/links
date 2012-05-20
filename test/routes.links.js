@@ -45,9 +45,11 @@ describe('routes.links.js', function() {
 				};
 				caller(http.routes.get['/links/:url/edit'], request, response);
 			});
-			it('should return status 404', function() {
-				var data = response.render.lastCall.args[1];
-				expect(data.status).to.eql(404);
+			it('should not call render', function() {
+				expect(response.render).not.to.have.been.called;
+			});
+			it('should call next with error code 404', function() {
+				expect(caller.error.status).to.equal(404);
 			});
 		});
 		describe('With an existing url', function() {
@@ -70,19 +72,35 @@ describe('routes.links.js', function() {
 			});
 		});
 	});
-	describe('When getting "/links/abc"', function() {
-		beforeEach(function() {
-			storage.get.withArgs('abc').yields(null, { url: 'abc' });
-			request = {
-				params: {
-					url: 'abc'
-				}
-			};
-			caller(http.routes.get['/links/:url'], request, response);
+	describe('When getting "/links/:url"', function() {
+		describe('with an existing url', function() {
+			beforeEach(function() {
+				storage.get.withArgs('abc').yields(null, { url: 'abc' });
+				request = {
+					params: {
+						url: 'abc'
+					}
+				};
+				caller(http.routes.get['/links/:url'], request, response);
+			});
+			it('should return the requested link', function() {
+				var links = response.render.lastCall.args[1];
+				expect(links).to.eql({ url: 'abc' });
+			});
 		});
-		it('should return the requested link', function() {
-			var links = response.render.lastCall.args[1];
-			expect(links).to.eql({ url: 'abc' });
+		describe('with an unknown url', function() {
+			beforeEach(function() {
+				storage.get.yields(null, null);
+				request = {
+					params: {
+						url: 'abc'
+					}
+				};
+				caller(http.routes.get['/links/:url'], request, response);
+			});
+			it('should call next with error code 404', function() {
+				expect(caller.error.status).to.equal(404);
+			});
 		});
 	});
 	describe('When getting "/links"', function() {
@@ -146,12 +164,14 @@ describe('routes.links.js', function() {
 			it('should not store the link', function() {
 				expect(storage.add).not.to.have.been.called;
 			});
-			it('should call next with error', function() {
-				expect(caller.error).to.exist;
+			it('should not call render', function() {
+				expect(response.render).not.to.have.been.called;
 			});
-			it('should return status code 400', function() {
-				var options = response.render.lastCall.args[1];
-				expect(options.status).to.equal(400);
+			it('should call next with error code 400', function() {
+				expect(caller.error.status).to.equal(400);
+			});
+			it('should add a validation parameter to the next call', function() {
+				expect(caller.error.validation).to.exist;
 			});
 		});
 		describe('with valid data', function() {
@@ -231,12 +251,14 @@ describe('routes.links.js', function() {
 			it('should not store the link', function() {
 				expect(storage.add).not.to.have.been.called;
 			});
-			it('should give an error 400', function() {
-				var options = response.render.lastCall.args[1];
-				expect(options.status).to.equal(400);
+			it('should not call render', function() {
+				expect(response.render).not.to.have.been.called;
 			});
-			it('should call next with an error', function() {
-				expect(caller.error).to.exist;
+			it('should call next with error 400', function() {
+				expect(caller.error.status).to.equal(400);
+			});
+			it('should add a validation parameter to the next call', function() {
+				expect(caller.error.validation).to.exist;
 			});
 		});
 		describe('and the data is valid', function() {
