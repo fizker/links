@@ -13,7 +13,12 @@ function errors(err, request, response, next) {
 };
 
 function handle401(err, request, response, next) {
-	response.render('user.login.mustache');
+	if(request.accept('html')) {
+		response.render('user.login.mustache');
+		return;
+	}
+	response.header('WWW-Authenticate', 'Basic realm="Fizker Inc Links"');
+	response.send(401);
 };
 function handle404(err, request, response, next) {
 	response.render('errors/404');

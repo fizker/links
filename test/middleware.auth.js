@@ -13,8 +13,10 @@ describe('middleware.auth.js', function() {
 				}
 			}
 		};
-		request.storage.users.verify.yields(null, false);
-		request.storage.users.verify.withArgs('valid', 'creds').yields(null, { username: 'abc' });
+		request.storage.users
+			.verify.yields(null, false);
+		request.storage.users
+			.verify.withArgs('valid', 'creds').yields(null, { username: 'abc' });
 
 		response = {
 			send: sinon.stub(),
@@ -26,7 +28,7 @@ describe('middleware.auth.js', function() {
 		describe('with valid credentials', function() {
 			beforeEach(function() {
 				var credentials = 'valid:creds'
-					// created with btoa('creds:creds')
+					// created with btoa('valid:creds')
 				  , asBase64 = 'dmFsaWQ6Y3JlZHM='
 
 				request.header.withArgs('Authorization').returns('Basic dmFsaWQ6Y3JlZHM=');
