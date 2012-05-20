@@ -15,6 +15,17 @@ describe('middleware.errors.js', function() {
 		nextSpy = sinon.spy();
 	});
 
+	describe('When called with a 404 error', function() {
+		var view
+		beforeEach(function() {
+			err = { status: 404 };
+			middleware(err, request, response, nextSpy);
+			view = response.render.lastCall.args[0]
+		});
+		it('should render the 404 view', function() {
+			expect(view).to.have.string('404');
+		});
+	});
 	describe('When called with a 401 error', function() {
 		var view
 		beforeEach(function() {
