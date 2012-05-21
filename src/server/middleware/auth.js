@@ -14,7 +14,13 @@ function auth(request, response, next) {
 		if(result) {
 			return next();
 		}
-		return next({ status: 401 });
+
+		if(request.accept('html')) {
+			response.render('user.login.mustache');
+			return;
+		}
+		response.header('WWW-Authenticate', 'Basic realm="Fizker Inc Links"');
+		response.send(401);
 	};
 }
 
@@ -36,6 +42,10 @@ function handleHttpAuth(request, next) {
 	username = split[0];
 	password = split[1];
 
+	verifyUser(username, password, request, next);
+};
+
+function verifyUser(username, password, request, next) {
 	request.storage.users.verify(username, password, function(err, user) {
 		if(err) {
 			return next(err);
