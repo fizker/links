@@ -10,6 +10,7 @@ describe('middleware.auth.js', function() {
 			header: sinon.stub(),
 			storage: {
 				users: {
+					byToken: sinon.stub(),
 					verify: sinon.stub()
 				}
 			}
@@ -29,8 +30,24 @@ describe('middleware.auth.js', function() {
 		};
 		nextSpy = sinon.spy();
 	});
-	describe('When authorized', function() {
-		describe('with valid credentials', function() {
+	describe('When using header-token', function() {
+		describe('that is valid', function() {
+			beforeEach(function() {
+				request.header.withArgs('X-User-Token').returns('aaa');
+				request.storage.users.byToken.withArgs('aaa').yields(null, { username: 'abc' });
+				middleware(request, response, nextSpy);
+			});
+			it('should call next-spy', function() {
+				expect(nextSpy).to.have.been.calledWithExactly();
+			});
+			it('should attach user info to the request', function() {
+				expect(request.user)
+					.to.eql({ username: 'abc' });
+			});
+		});
+	});
+	describe('When using http-authentication', function() {
+		describe('and valid credentials', function() {
 			beforeEach(function() {
 				var credentials = 'valid:creds'
 					// created with btoa('valid:creds')
@@ -46,8 +63,12 @@ describe('middleware.auth.js', function() {
 				expect(request.user)
 					.to.eql({ username: 'abc' });
 			});
+			it('should not call any of the response functions', function() {
+				expect(response.send).not.to.have.been.called;
+				expect(response.render).not.to.have.been.called;
+			});
 		});
-		describe('with invalid credentials', function() {
+		describe('and invalid credentials', function() {
 			beforeEach(function() {
 				var credentials = 'invalid:creds'
 					// created with btoa('abc:def')

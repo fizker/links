@@ -6,7 +6,10 @@ function auth(request, response, next) {
 	if(handleHttpAuth(request, userHasAuthed)) {
 		return;
 	}
-	// check other means of authing here (token, cookie, whatever).
+	if(handleHttpToken(request, userHasAuthed)) {
+		return;
+	}
+	// check other means of authing here (cookie, whatever).
 
 	userHasAuthed(null, false);
 
@@ -22,7 +25,18 @@ function auth(request, response, next) {
 		response.header('WWW-Authenticate', 'Basic realm="Fizker Inc Links"');
 		response.send(401);
 	};
-}
+};
+
+function handleHttpToken(request, next) {
+	var token = request.header('X-User-Token')
+	if(token) {
+		request.storage.users.byToken(token, function(err, user) {
+			request.user = user;
+			next(null, user);
+		});
+		return true;
+	}
+};
 
 function handleHttpAuth(request, next) {
 	var authHeader = request.header('Authorization')
@@ -42,7 +56,7 @@ function handleHttpAuth(request, next) {
 	username = split[0];
 	password = split[1];
 
-	verifyUser(username, password, request, next);
+	return verifyUser(username, password, request, next);
 };
 
 function verifyUser(username, password, request, next) {
