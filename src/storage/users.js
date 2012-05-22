@@ -11,9 +11,19 @@ function setup(database) {
 		get: getUser,
 		del: delUser,
 		add: addUser,
+		byToken: byToken,
 		verify: verifyUser
 	};
 }
+
+function byToken(token, callback) {
+	db.collection('users', function(err, collection) {
+		var query = { token: token }
+		collection.findOne(query, function(err, data) {
+			callback(null, data || null);
+		});
+	});
+};
 
 function verifyUser(username, password, callback) {
 	db.collection('users', function(err, collection) {

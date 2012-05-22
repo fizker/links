@@ -20,17 +20,42 @@ describe('storage.users.js', function() {
 		};
 		storage = factory(db);
 	});
+	describe('When calling byToken(token)', function() {
+		describe('with valid token', function() {
+			beforeEach(function() {
+				userCollection.findOne
+					.withArgs({ token: 'aaa' })
+					.yields(null, { username: 'abc' });
+				storage.byToken('aaa', callback);
+			});
+			it('should pass the user', function() {
+				expect(callback)
+					.to.have.been.calledWith(null, { username: 'abc' });
+			});
+		});
+		describe('with invalid token', function() {
+			beforeEach(function() {
+				userCollection.findOne
+					.yields(null);
+				storage.byToken('aaa', callback);
+			});
+			it('should pass the user', function() {
+				expect(callback)
+					.to.have.been.calledWith(null, null);
+			});
+		});
+	});
 	describe('When calling verify(username, password)', function() {
 		describe('with valid credentials', function() {
 			beforeEach(function() {
 				userCollection.findOne
 					.withArgs({ username: 'abc', password: 'def' })
-					.yields(null, { username: 'abc', password: 'def' });
+					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi' });
 				storage.verify('abc', 'def', callback);
 			});
 			it('should pass true', function() {
 				expect(callback)
-					.to.have.been.calledWith(null, { username: 'abc', password: 'def' });
+					.to.have.been.calledWith(null, { username: 'abc', password: 'def', otherValue: 'ghi' });
 			});
 		});
 		describe('with invalid credentials', function() {
