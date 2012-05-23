@@ -74,7 +74,6 @@ function getLink(request, response, next) {
 
 function postLink(request, response) {
 	var link = request.body
-	  , url = link.url
 
 	db.add(link, function(err, link) {
 		response.local('message', 'link created');
@@ -86,20 +85,10 @@ function postLink(request, response) {
 function postUpdateLink(request, response) {
 	var link = request.body
 	  , url = request.params.url
-	  , otherIsComplete
 
-	db.del(url, checkIsComplete);
-	db.add(link, checkIsComplete);
-
-	function checkIsComplete() {
-		if(otherIsComplete) {
-			allDone();
-		}
-		otherIsComplete = true;
-	};
-	function allDone() {
+	db.update(url, link, function() {
 		response.render('link.post.mustache', link);
-	};
+	});
 };
 function putLink(request, response) {
 	var url = request.params.url

@@ -27,6 +27,7 @@ describe('routes.links.js', function() {
 			{ get: sinon.stub()
 			, del: sinon.stub()
 			, add: sinon.stub()
+			, update: sinon.stub()
 			};
 
 		routes({
@@ -123,29 +124,56 @@ describe('routes.links.js', function() {
 		beforeEach(function() {
 			storage.del.withArgs('abc').yields({ url: 'abc' });
 			storage.add.yields({ url: 'abc' });
-			request = {
-				params: {
-					url: 'abc'
-				},
-				body: {
-					url: 'def'
-				}
-			};
-			caller(http.routes.post['/links/:url'], request, response);
 		});
-		it('should not fail for different urls', function() {
+		describe('with the same url', function() {
+			beforeEach(function() {
+				request = {
+					params: {
+						url: 'abc'
+					},
+					body: {
+						url: 'abc'
+					}
+				};
+				storage.update.yields({ url: 'abc' });
+				caller(http.routes.post['/links/:url'], request, response);
+			});
+			it('should not delete the existing', function() {
+				expect(storage.del)
+					.not.to.have.been.calledWith('abc');
+			});
+			it('should update the existing', function() {
+				expect(storage.update)
+					.to.have.been.calledWith('abc', { url: 'abc', encodedUrl: 'abc' });
+			});
+		});
+		describe('with updated urls', function() {
+			beforeEach(function() {
+				request = {
+					params: {
+						url: 'abc'
+					},
+					body: {
+						url: 'def'
+					}
+				};
+				storage.update.yields({ url: 'def' });
+				caller(http.routes.post['/links/:url'], request, response);
+			});
+			it('should not fail for different urls', function() {
 			var status = response.render.lastCall.args[1].status;
 			expect(status).not.to.satisfy(function(num) {
 				return num < 200 || num > 299;
 			});
 		});
-		it('should remove the old link', function() {
-			expect(storage.del)
-				.to.have.been.calledWith('abc');
-		});
-		it('should add the new link', function() {
-			var url = storage.add.lastCall.args[0].url
-			expect(url).to.eql('def');
+			it('should not remove the old link', function() {
+				expect(storage.del)
+					.not.to.have.been.calledWith('abc');
+			});
+			it('should update the link', function() {
+				expect(storage.update)
+					.to.have.been.calledWith('abc', { url: 'def', encodedUrl: 'def' });
+			});
 		});
 	});
 	describe('When putting to "/links/:url"', function() {
