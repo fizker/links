@@ -25,7 +25,7 @@
 	},
 	"optionalDependencies": {},
 	"scripts": {
-		"install": "node_modules/.bin/grunt",
+		"install": "grunt",
 		"test": "mocha"
 	},
 	"private": true
