@@ -3,6 +3,7 @@
 module.exports = setup;
 
 var db
+  , tokenGen = require('../token')
 
 function setup(database) {
 	db = database;
@@ -26,9 +27,13 @@ function byToken(token, callback) {
 };
 
 function verifyUser(username, password, callback) {
+	var token = tokenGen.generate([username, password]);
 	db.collection('users', function(err, collection) {
 		var query = { username: username, password: password }
-		collection.findOne(query, function(err, data) {
+		collection.findAndModify(query, [], { token: token }, function(err, data) {
+			if(data) {
+				data.token = token;
+			}
 			callback(null, data || null);
 		})
 	});

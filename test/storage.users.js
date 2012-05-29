@@ -12,6 +12,7 @@ describe('storage.users.js', function() {
 		userCollection =
 			{find: sinon.stub()
 			,findOne: sinon.stub()
+			,findAndModify: sinon.stub()
 			,remove: sinon.stub()
 			,save: sinon.stub()
 			};
@@ -47,20 +48,43 @@ describe('storage.users.js', function() {
 	});
 	describe('When calling verify(username, password)', function() {
 		describe('with valid credentials', function() {
+			var tokenGenerator = require('../src/token')
 			beforeEach(function() {
+				sinon.stub(tokenGenerator, 'generate');
+				tokenGenerator.generate
+					.withArgs([ 'abc', 'def' ])
+					.returns('token-value');
+				userCollection.findAndModify
+					.withArgs(
+						{ username: 'abc', password: 'def' }
+						, []
+						, { token: 'token-value' }
+					)
+					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi' });
 				userCollection.findOne
 					.withArgs({ username: 'abc', password: 'def' })
 					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi' });
 				storage.verify('abc', 'def', callback);
 			});
+			afterEach(function() {
+				tokenGenerator.generate.restore();
+			});
 			it('should pass true', function() {
 				expect(callback)
-					.to.have.been.calledWith(null, { username: 'abc', password: 'def', otherValue: 'ghi' });
+					.to.have.been.calledWithMatch(null,
+						{ username: 'abc'
+						, password: 'def'
+						, otherValue: 'ghi'
+						});
+			});
+			it('should calculate a token', function() {
+				expect(callback)
+					.to.have.been.calledWithMatch(null, { token: 'token-value' });
 			});
 		});
 		describe('with invalid credentials', function() {
 			beforeEach(function() {
-				userCollection.findOne
+				userCollection.findAndModify
 					.withArgs({ username: 'abc', password: 'def' })
 					.yields(null);
 				storage.verify('abc', 'def', callback);
