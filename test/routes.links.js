@@ -144,7 +144,7 @@ describe('routes.links.js', function() {
 			});
 			it('should update the existing', function() {
 				expect(storage.update)
-					.to.have.been.calledWith('abc', { url: 'abc', encodedUrl: 'abc' });
+					.to.have.been.calledWithMatch('abc', { url: 'abc' });
 			});
 		});
 		describe('with updated urls', function() {
@@ -172,7 +172,7 @@ describe('routes.links.js', function() {
 			});
 			it('should update the link', function() {
 				expect(storage.update)
-					.to.have.been.calledWith('abc', { url: 'def', encodedUrl: 'def' });
+					.to.have.been.calledWithMatch('abc', { url: 'def' });
 			});
 		});
 	});
@@ -221,8 +221,7 @@ describe('routes.links.js', function() {
 					caller(http.routes.put['/links/:url'], request, response);
 				});
 				it('should be replaced', function() {
-					expect(storage.add).to.have.been.calledWith({
-						encodedUrl: 'abc',
+					expect(storage.add).to.have.been.calledWithMatch({
 						url: 'abc',
 						text: 'def'
 					});
