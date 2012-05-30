@@ -27,7 +27,7 @@ function byToken(token, callback) {
 };
 
 function verifyUser(username, password, callback) {
-	var token = tokenGen.generate([username, password]);
+	var token = tokenGen.generate(username, password);
 	db.collection('users', function(err, collection) {
 		var query = { username: username, password: password }
 		collection.findAndModify(

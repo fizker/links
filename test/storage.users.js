@@ -52,8 +52,9 @@ describe('storage.users.js', function() {
 			beforeEach(function() {
 				sinon.stub(tokenGenerator, 'generate');
 				tokenGenerator.generate
-					.withArgs([ 'abc', 'def' ])
+					.withArgs('abc', 'def')
 					.returns('token-value');
+
 				userCollection.findAndModify
 					.withArgs(
 						{ username: 'abc', password: 'def' }
@@ -65,6 +66,7 @@ describe('storage.users.js', function() {
 				userCollection.findOne
 					.withArgs({ username: 'abc', password: 'def' })
 					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi' });
+
 				storage.verify('abc', 'def', callback);
 			});
 			afterEach(function() {
