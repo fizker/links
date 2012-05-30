@@ -58,9 +58,10 @@ describe('storage.users.js', function() {
 					.withArgs(
 						{ username: 'abc', password: 'def' }
 						, []
-						, { token: 'token-value' }
+						, { $set: { token: 'token-value' } }
+						, { new: true }
 					)
-					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi' });
+					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi', token: 'token-value' });
 				userCollection.findOne
 					.withArgs({ username: 'abc', password: 'def' })
 					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi' });

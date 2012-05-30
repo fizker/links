@@ -30,10 +30,13 @@ function verifyUser(username, password, callback) {
 	var token = tokenGen.generate([username, password]);
 	db.collection('users', function(err, collection) {
 		var query = { username: username, password: password }
-		collection.findAndModify(query, [], { token: token }, function(err, data) {
-			if(data) {
-				data.token = token;
-			}
+		collection.findAndModify(
+			query
+			, []
+			, { $set: { token: token } }
+			, { new: true }
+			, function(err, data)
+		{
 			callback(null, data || null);
 		})
 	});
