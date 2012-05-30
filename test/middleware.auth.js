@@ -19,6 +19,8 @@ describe('middleware.auth.js', function() {
 			.verify.yields(null, false);
 		request.storage.users
 			.verify.withArgs('valid', 'creds').yields(null, { username: 'abc' });
+		request.storage.users
+			.byToken.yields(null, false);
 
 		response = {
 			headers: {},
@@ -44,6 +46,9 @@ describe('middleware.auth.js', function() {
 				expect(request.user)
 					.to.eql({ username: 'abc' });
 			});
+		});
+		describe('that is invalid', function() {
+			it('should call next with an error');
 		});
 	});
 	describe('When using http-authentication', function() {
@@ -78,8 +83,8 @@ describe('middleware.auth.js', function() {
 				middleware(request, response, nextSpy);
 			});
 			it('should call send with error status 401', function() {
-				var status = response.send.lastCall.args[0];
-				expect(status).to.be.eql(401);
+				expect(response.send)
+					.to.have.been.calledWith(401);
 			});
 		});
 	});

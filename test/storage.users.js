@@ -40,7 +40,7 @@ describe('storage.users.js', function() {
 					.yields(null);
 				storage.byToken('aaa', callback);
 			});
-			it('should pass the user', function() {
+			it('should pass null to the callback', function() {
 				expect(callback)
 					.to.have.been.calledWith(null, null);
 			});
@@ -72,7 +72,7 @@ describe('storage.users.js', function() {
 			afterEach(function() {
 				tokenGenerator.generate.restore();
 			});
-			it('should pass true', function() {
+			it('should pass the user', function() {
 				expect(callback)
 					.to.have.been.calledWithMatch(null,
 						{ username: 'abc'

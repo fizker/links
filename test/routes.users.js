@@ -58,8 +58,7 @@ describe('routes.users.js', function() {
 			expect(middleware.auth).not.to.have.been.called;
 		});
 		it('should request the signup view', function() {
-			var view = response.render.lastCall.args[0]
-			expect(view).to.have.string('signup')
+			expect(response.render).to.have.been.calledWithMatch('signup')
 		});
 	});
 
@@ -68,6 +67,8 @@ describe('routes.users.js', function() {
 			request = {
 				user: { username: 'abc' }
 			}
+			// If auth is not valid, the route is never hit.
+			// We only need to test successful auth here.
 			middleware.auth.yields();
 			caller(http.routes.get['/profile'], request, response);
 		});
@@ -75,13 +76,12 @@ describe('routes.users.js', function() {
 			expect(middleware.auth).to.have.been.called;
 		});
 		it('should load the profile view', function() {
-			var view = response.render.lastCall.args[0]
-			expect(view)
-				.to.have.string('profile')
+			expect(response.render)
+				.to.have.been.calledWithMatch('profile')
 		});
 		it('should pass the user in the render call', function() {
-			var data = response.render.lastCall.args[1]
-			expect(data).to.eql({ username: 'abc' });
+			expect(response.render)
+				.to.have.been.calledWithMatch('', { username: 'abc' });
 		});
 	});
 });
