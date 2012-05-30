@@ -12,6 +12,7 @@ describe('storage.links.js', function() {
 		linkCollection =
 			{find: sinon.stub()
 			,findOne: sinon.stub()
+			,findAndModify: sinon.stub()
 			,remove: sinon.stub()
 			,save: sinon.stub()
 			};
@@ -19,6 +20,24 @@ describe('storage.links.js', function() {
 			collection: sinon.stub().withArgs('links').yields(null, linkCollection)
 		};
 		storage = factory(db);
+	});
+	describe('When calling update(url, link)', function() {
+		beforeEach(function() {
+			linkCollection.findAndModify
+				.withArgs({ url: 'abc' }, [], { $set: { url: 'def' } }, { new: true })
+				.yields(null, { url: 'def', text: 'ghi' });
+
+			storage.update('abc', { url: 'def' }, callback);
+		});
+		it('calls findAndModify', function() {
+			expect(linkCollection.findAndModify)
+				.to.have.been
+					.calledWith({ url: 'abc' }, [], { $set: { url: 'def' } });
+		});
+		it('calls the callback with the changed link', function() {
+			expect(callback)
+				.to.have.been.calledWith(null, { url: 'def', text: 'ghi' });
+		});
 	});
 	describe('When calling add(link)', function() {
 		beforeEach(function() {

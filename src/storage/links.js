@@ -10,7 +10,8 @@ function setup(database) {
 	return {
 		add: setLink,
 		del: delLink,
-		get: getLink
+		get: getLink,
+		update: updateLink
 	};
 }
 
@@ -44,4 +45,12 @@ function getLink(url, callback) {
 
 		collection.find().toArray(callback);
 	});
-}
+};
+function updateLink(url, link, callback) {
+	debugger
+	db.collection('links', function(err, collection) {
+		var query = { url: url }
+		  , update = { $set: link }
+		collection.findAndModify(query, [], update, { new: true }, callback);
+	});
+};

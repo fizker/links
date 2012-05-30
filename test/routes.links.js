@@ -157,7 +157,7 @@ describe('routes.links.js', function() {
 						url: 'def'
 					}
 				};
-				storage.update.yields({ url: 'def' });
+				storage.update.yields(null, { url: 'def' });
 				caller(http.routes.post['/links/:url'], request, response);
 			});
 			it('should not fail for different urls', function() {
