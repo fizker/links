@@ -11,4 +11,9 @@ function setupRoutes(options) {
 
 	require('./links')(options);
 	require('./bookmarklets')(options);
+	require('./users')(options);
+
+	http.get('*', function(request, response, next) {
+		next({ status: 404 });
+	});
 };

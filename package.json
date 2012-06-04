@@ -2,7 +2,7 @@
 	"author": "Benjamin Horsleben <benjamin@fizkerinc.dk>",
 	"name": "links",
 	"description": "A simple links-repository.",
-	"version": "0.4.0",
+	"version": "0.5.0",
 	"repository": {
 	"type": "git",
 	"url": "git://github.com/fizker/links.git"
@@ -19,13 +19,13 @@
 	},
 	"devDependencies": {
 		"mocha": "1.0.2",
-		"chai": "0.5.2",
-		"sinon": "1.3.4",
-		"sinon-chai": "1.3.1"
+		"chai": "1.0.3",
+		"sinon": "git://github.com/fizker/Sinon.JS.git",
+		"sinon-chai": "git://github.com/fizker/sinon-chai.git#sinon-1.4"
 	},
 	"optionalDependencies": {},
 	"scripts": {
-		"install": "node_modules/.bin/grunt",
+		"install": "grunt",
 		"test": "mocha"
 	},
 	"private": true

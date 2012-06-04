@@ -6,6 +6,7 @@ var express = require('express')
   , hogan = require('hogan.js')
   , path = require('path')
   , fs = require('fs')
+  , middleware = require('./middleware')
 
   , viewsDir = path.join(__dirname, '../../views')
   // We would want a dev-switch here, and use precompiled when not in dev mode.
@@ -22,10 +23,15 @@ function config(options) {
 		http.set('view engine', 'mustache');
 		http.set('views', viewsDir);
 		http.set('view options', { layout: false });
+		http.use(middleware.storage(options));
+		http.use(middleware.accept);
 		http.use(express.static(path.join(__dirname, '../../static')));
 		http.use(express.bodyParser());
-		http.use(require('./middleware/accept'));
 		http.use(require('connect-xcors')({}));
+
+		http.use(http.router);
+
+		http.use(middleware.errors);
 
 		http.register('.mustache', {
 			compile: function() {

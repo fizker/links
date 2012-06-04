@@ -30,8 +30,7 @@ function validateLink(request, response, next) {
 
 	if(!link || link.url == null) {
 		error = 'No link given';
-		response.render('errors/400', { status: 400, error: error });
-		next(new Error(error));
+		next({ status: 400, validation: {}, error: error });
 		return;
 	}
 	link.encodedUrl = encodeURIComponent(link.url);
@@ -40,18 +39,14 @@ function validateLink(request, response, next) {
 function newLink(request, response) {
 	response.render('link.edit.mustache', {});
 };
-function editLink(request, response) {
+function editLink(request, response, next) {
 	var url = request.params.url
 
 	db.get(url, linkLoaded)
 
 	function linkLoaded(err, link) {
-		if(err) {
-			response.render('errors/500', { status: 500, error: err });
-			return;
-		}
 		if(!link) {
-			response.render('errors/404', { status: 404 });
+			next({ status: 404 });
 			return;
 		}
 
@@ -60,24 +55,16 @@ function editLink(request, response) {
 };
 function allLinks(request, response) {
 	db.get(function(err, data) {
-		if(err) {
-			response.render('errors/500', { status: 500, error: err });
-			return;
-		}
 		response.render('links', data);
 	});
 };
 
-function getLink(request, response) {
+function getLink(request, response, next) {
 	var url = request.params.url
 
 	db.get(url, function(err, link) {
-		if(err) {
-			response.render('errors/500', { status: 500, error: err });
-			return;
-		};
 		if(!link) {
-			response.render('errors/404', { status: 404 });
+			next({ status: 404 });
 			return;
 		}
 
@@ -87,7 +74,6 @@ function getLink(request, response) {
 
 function postLink(request, response) {
 	var link = request.body
-	  , url = link.url
 
 	db.add(link, function(err, link) {
 		response.local('message', 'link created');
@@ -99,20 +85,10 @@ function postLink(request, response) {
 function postUpdateLink(request, response) {
 	var link = request.body
 	  , url = request.params.url
-	  , otherIsComplete
 
-	db.del(url, checkIsComplete);
-	db.add(link, checkIsComplete);
-
-	function checkIsComplete() {
-		if(otherIsComplete) {
-			allDone();
-		}
-		otherIsComplete = true;
-	};
-	function allDone() {
+	db.update(url, link, function() {
 		response.render('link.post.mustache', link);
-	};
+	});
 };
 function putLink(request, response) {
 	var url = request.params.url
