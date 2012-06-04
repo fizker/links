@@ -47,7 +47,6 @@ function getLink(url, callback) {
 	});
 };
 function updateLink(url, link, callback) {
-	debugger
 	db.collection('links', function(err, collection) {
 		var query = { url: url }
 		  , update = { $set: link }

@@ -42,9 +42,9 @@ function verifyUser(username, password, callback) {
 	});
 };
 
-function addUser(username, callback) {
-	db.collection('username', function(err, collection) {
-		collection.save(username, callback);
+function addUser(user, callback) {
+	db.collection('users', function(err, collection) {
+		collection.save(user, callback);
 	});
 };
 function delUser(username, callback) {

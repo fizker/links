@@ -17,8 +17,9 @@ describe('unit/storage/users.js', function() {
 			,save: sinon.stub()
 			};
 		db = {
-			collection: sinon.stub().withArgs('users').yields(null, userCollection)
+			collection: sinon.stub()
 		};
+		db.collection.withArgs('users').yields(null, userCollection);
 		storage = factory(db);
 	});
 	describe('When calling byToken(token)', function() {
@@ -98,7 +99,7 @@ describe('unit/storage/users.js', function() {
 			});
 		});
 	});
-	describe('When calling add(username)', function() {
+	describe('When calling add(user)', function() {
 		beforeEach(function() {
 			userCollection.save
 				.withArgs({ username: 'abc', text:'def' })
