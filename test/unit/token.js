@@ -1,5 +1,5 @@
 describe('token.js', function() {
-	var generator = require('../src/token')
+	var generator = require('../../src/token')
 	  , crypto = require('crypto')
 	  , digester
 	describe('When generating tokens', function() {

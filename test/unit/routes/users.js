@@ -1,13 +1,13 @@
-describe('routes.users.js', function() {
-	var routes = require('../src/routes/users')
-	  , helper = require('./helpers/routes')
+describe('unit/routes/users.js', function() {
+	var routes = require('../../../src/routes/users')
+	  , helper = require('../../helpers/routes')
 	  , http
 	  , caller = helper.caller
 	  , storage
 	  , response
 	  , request
 
-	  , middleware = require('../src/server/middleware')
+	  , middleware = require('../../../src/server/middleware')
 	  , originalAuth
 
 	beforeEach(function() {

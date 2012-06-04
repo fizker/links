@@ -1,5 +1,5 @@
-describe('middleware.errors.js', function() {
-	var middleware = require('../src/server/middleware/errors')
+describe('unit/middleware/errors.js', function() {
+	var middleware = require('../../../src/server/middleware/errors')
 	  , request
 	  , response
 	  , nextSpy

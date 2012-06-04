@@ -1,7 +1,7 @@
-describe('storage.users.js', function() {
+describe('unit/storage/users.js', function() {
 	'use strict';
 
-	var factory = require('../src/storage/users')
+	var factory = require('../../../src/storage/users')
 	  , db
 	  , storage
 	  , callback
@@ -48,7 +48,7 @@ describe('storage.users.js', function() {
 	});
 	describe('When calling verify(username, password)', function() {
 		describe('with valid credentials', function() {
-			var tokenGenerator = require('../src/token')
+			var tokenGenerator = require('../../../src/token')
 			beforeEach(function() {
 				sinon.stub(tokenGenerator, 'generate');
 				tokenGenerator.generate

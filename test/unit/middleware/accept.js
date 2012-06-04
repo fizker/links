@@ -1,5 +1,5 @@
-describe('middleware.accept.js', function() {
-	var middleware = require('../src/server/middleware/accept')
+describe('unit/middleware/accept.js', function() {
+	var middleware = require('../../../src/server/middleware/accept')
 	  , request
 	  , response
 	  , renderSpy
