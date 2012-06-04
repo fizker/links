@@ -6,7 +6,7 @@ describe('unit/middleware/auth.js', function() {
 
 	beforeEach(function() {
 		request = {
-			accept: sinon.stub(),
+			accepts: sinon.stub(),
 			header: sinon.stub(),
 			storage: {
 				users: {
@@ -91,8 +91,8 @@ describe('unit/middleware/auth.js', function() {
 	describe('When not authorized', function() {
 		describe('while requesting html', function() {
 			beforeEach(function() {
-				request.accept.withArgs('html').returns(true);
-				request.accept.withArgs('text/html').returns(true);
+				request.accepts.withArgs('html').returns(true);
+				request.accepts.withArgs('text/html').returns(true);
 				middleware(request, response, nextSpy);
 			});
 			it('should render the login view', function() {
@@ -108,7 +108,7 @@ describe('unit/middleware/auth.js', function() {
 		});
 		describe('while not requesting html', function() {
 			beforeEach(function() {
-				request.accept.returns(false);
+				request.accepts.returns(false);
 				middleware(request, response, nextSpy);
 			});
 			it('should send header 401', function() {

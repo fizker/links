@@ -18,7 +18,7 @@ function auth(request, response, next) {
 			return next();
 		}
 
-		if(request.accept('html')) {
+		if(request.accepts('html')) {
 			response.render('user.login.mustache');
 			return;
 		}
