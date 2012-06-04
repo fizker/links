@@ -23,6 +23,7 @@
 		"sinon": "git://github.com/fizker/Sinon.JS.git",
 		"sinon-chai": "git://github.com/fizker/sinon-chai.git#sinon-1.4"
 		,"request": "2.9.202"
+		,"btoa": "1.0.0"
 	},
 	"optionalDependencies": {},
 	"scripts": {
