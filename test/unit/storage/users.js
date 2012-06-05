@@ -32,7 +32,7 @@ describe('unit/storage/users.js', function() {
 		});
 		it('should supply the modified values', function() {
 			expect(userCollection.findAndModify)
-				.to.have.been.calledWithMatch({}, { $set: { username: 'def', email: 'ghi' } });
+				.to.have.been.calledWithMatch({}, [], { $set: { username: 'def', email: 'ghi' } });
 		});
 		it('should pass the modified user to the callback', function() {
 			userCollection.findAndModify

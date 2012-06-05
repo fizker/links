@@ -79,6 +79,6 @@ function getUser(username, callback) {
 function updateUser(username, user, callback) {
 	db.collection('users', function(err, collection) {
 		var query = { username: username }
-		collection.findAndModify(query, { $set: user }, callback);
+		collection.findAndModify(query, [], { $set: user }, { new: true }, callback);
 	});
 };
