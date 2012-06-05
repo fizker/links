@@ -30,7 +30,38 @@ describe('integration/users/profile.js', function() {
 		users.del('abc', done);
 	});
 	describe('When not authorized', function() {
-		describe('and not requesting html', function() {
+		describe('and posting to "/profile"', function() {
+			beforeEach(function(done) {
+				options.json = { username: 'aaa', password: 'bbb' };
+
+				callbackSpy = sinon.spy(done);
+				request.post(options, callbackSpy);
+			});
+			afterEach(function() {
+				users.del('aaa');
+			});
+			it('should create a new user', function(done) {
+				users.get('aaa', function(err, user) {
+					expect(user)
+						.to.approximate({ username: 'aaa' });
+					done();
+				});
+			});
+			it('should return status 200', function() {
+				expect(callbackSpy)
+					.to.have.been.calledWithMatch(null, { statusCode: 200 });
+			});
+			it('should return a token that is accepted for auth', function(done) {
+				var data = callbackSpy.getCall(0).args[2]
+				options.headers['x-user-token'] = data.token;
+				request.get(options, function(err, response, data) {
+					expect(response)
+						.to.have.property('statusCode', 200);
+					done();
+				});
+			});
+		});
+		describe('and getting "/profile"', function() {
 			beforeEach(function(done) {
 				callbackSpy = sinon.spy(done)
 				request.get(options, callbackSpy);
@@ -107,7 +138,6 @@ describe('integration/users/profile.js', function() {
 				expect(data)
 					.to.approximate({
 						username: 'abc',
-						password: 'def',
 						email: 'a@b.cd'
 					});
 			});

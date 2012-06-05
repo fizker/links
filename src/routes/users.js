@@ -10,8 +10,14 @@ function setup(options) {
 	http.get('/signup', getSignup);
 	http.get('/profile', middleware.auth, getProfile);
 	http.put('/profile', middleware.auth, putProfile);
+	http.post('/profile', postProfile);
 };
 
+function postProfile(request, response) {
+	request.storage.users.add(request.body, function(err, user) {
+		response.render('user.welcome.mustache', user);
+	});
+};
 function getProfile(request, response) {
 	response.render('user.profile.mustache', request.user);
 };

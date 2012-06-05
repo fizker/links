@@ -69,6 +69,30 @@ describe('unit/routes/users.js', function() {
 		});
 	});
 
+	describe('When posting to "/profile"', function() {
+		beforeEach(function() {
+			request.body = {
+				username: 'abc',
+				password: 'def'
+			};
+			caller(http.routes.post['/profile'], request, response);
+		});
+		it('should not require auth', function() {
+			expect(middleware.auth).not.to.have.been.called;
+		});
+		it('should create the user', function() {
+			expect(storage.add)
+				.to.have.been.calledWithMatch({
+					username: 'abc',
+					password: 'def'
+				});
+		});
+		it('should render a welcome site', function() {
+			storage.add.yield(null, { a: 1, b: 2 });
+			expect(response.render)
+				.to.have.been.calledWithMatch('welcome', { a: 1, b: 2 });
+		});
+	});
 	describe('When putting "/profile"', function() {
 		beforeEach(function() {
 			request.user = {
