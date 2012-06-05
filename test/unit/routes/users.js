@@ -13,6 +13,9 @@ describe('unit/routes/users.js', function() {
 	beforeEach(function() {
 		originalAuth = middleware.auth;
 		middleware.auth = sinon.stub();
+		// If auth is not valid, the route is never hit.
+		// We only need to test successful auth here.
+		middleware.auth.yields();
 	});
 	afterEach(function() {
 		middleware.auth = originalAuth;
@@ -41,12 +44,16 @@ describe('unit/routes/users.js', function() {
 			, del: sinon.stub()
 			, add: sinon.stub()
 			, verify: sinon.stub()
+			, update: sinon.stub()
 			};
 		storage.verify.withArgs('valid', 'creds').yields(null, true);
 
-		routes({
-			http: http,
+		request = {
 			storage: { users: storage }
+		};
+
+		routes({
+			http: http
 		});
 	});
 
@@ -62,14 +69,37 @@ describe('unit/routes/users.js', function() {
 		});
 	});
 
+	describe('When putting "/profile"', function() {
+		beforeEach(function() {
+			request.user = {
+				username: 'abc'
+			};
+			request.body = {
+				username: 'def',
+				email: 'ghi'
+			};
+			caller(http.routes.put['/profile'], request, response);
+		});
+		it('should update the user', function() {
+			expect(storage.update)
+				.to.have.been.calledWith('abc', {
+					username: 'def',
+					email: 'ghi'
+				});
+		});
+		it('should render the resulting user', function() {
+			storage.update.yield(null, { a: 1, b: 2 });
+			expect(response.render)
+				.to.have.been.calledWithMatch('profile', {
+					a: 1, b: 2
+				});
+		});
+	});
 	describe('When getting "/profile"', function() {
 		beforeEach(function() {
 			request = {
 				user: { username: 'abc' }
 			}
-			// If auth is not valid, the route is never hit.
-			// We only need to test successful auth here.
-			middleware.auth.yields();
 			caller(http.routes.get['/profile'], request, response);
 		});
 		it('should require auth', function() {
