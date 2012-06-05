@@ -28,7 +28,7 @@
 	"optionalDependencies": {},
 	"scripts": {
 		"install": "grunt",
-		"test": "mocha"
+		"test": "node runAllTests"
 	},
 	"private": true
 }
