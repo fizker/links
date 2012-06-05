@@ -22,6 +22,29 @@ describe('unit/storage/users.js', function() {
 		db.collection.withArgs('users').yields(null, userCollection);
 		storage = factory(db);
 	});
+	describe('When calling update(username, user)', function() {
+		beforeEach(function() {
+			storage.update('abc', { username: 'def', email: 'ghi' }, callback);
+		});
+		it('should query findAndModify for the old username', function() {
+			expect(userCollection.findAndModify)
+				.to.have.been.calledWithMatch({ username: 'abc' });
+		});
+		it('should supply the modified values', function() {
+			expect(userCollection.findAndModify)
+				.to.have.been.calledWithMatch({}, { $set: { username: 'def', email: 'ghi' } });
+		});
+		it('should pass the modified user to the callback', function() {
+			userCollection.findAndModify
+				.yield(null, {
+					username: 'def', email: 'ghi', token: 'jkl'
+				});
+			expect(callback)
+				.to.have.been.calledWith(null, {
+					username: 'def', email: 'ghi', token: 'jkl'
+				});
+		});
+	});
 	describe('When calling byToken(token)', function() {
 		describe('with valid token', function() {
 			beforeEach(function() {

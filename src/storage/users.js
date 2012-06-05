@@ -12,6 +12,7 @@ function setup(database) {
 		get: getUser,
 		del: delUser,
 		add: addUser,
+		update: updateUser,
 		byToken: byToken,
 		verify: verifyUser
 	};
@@ -73,4 +74,11 @@ function getUser(username, callback) {
 
 		collection.find().toArray(callback);
 	});
-}
+};
+
+function updateUser(username, user, callback) {
+	db.collection('users', function(err, collection) {
+		var query = { username: username }
+		collection.findAndModify(query, { $set: user }, callback);
+	});
+};
