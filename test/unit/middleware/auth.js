@@ -40,22 +40,7 @@ describe('unit/middleware/auth.js', function() {
 		};
 		nextSpy = sinon.spy();
 	});
-	describe('When logging in and asking for html', function() {
-		beforeEach(function() {
-			request.accepts.withArgs('html').returns(true);
-			request.headers['x-user-token'] = 'aaa';
-			request.storage.users.byToken.yields(null, { token: 'aaa' });
-			middleware(request, response, nextSpy);
-		});
-		it('should set the token to the header', function() {
-			expect(response.cookie)
-				.to.have.been.calledWithMatch('token', 'aaa');
-		});
-	});
 	describe('When using the post-middleware', function() {
-		beforeEach(function() {
-			request.accepts.withArgs('html').returns(true);
-		});
 		describe('with valid credentials', function() {
 			beforeEach(function() {
 				request.body = { username: 'valid', password: 'creds' };
@@ -102,6 +87,10 @@ describe('unit/middleware/auth.js', function() {
 				request.storage.users.byToken.withArgs('aaa').yields(null, { username: 'abc' });
 				middleware(request, response, nextSpy);
 			});
+			it('should not set cookies', function() {
+				expect(response.cookie)
+					.not.to.have.been.called;
+			});
 			it('should call next-spy', function() {
 				expect(nextSpy).to.have.been.calledWithExactly();
 			});
@@ -131,6 +120,10 @@ describe('unit/middleware/auth.js', function() {
 
 				request.headers['Authorization'] = 'Basic dmFsaWQ6Y3JlZHM=';
 				middleware(request, response, nextSpy);
+			});
+			it('should not set cookies', function() {
+				expect(response.cookie)
+					.not.to.have.been.called;
 			});
 			it('should call next', function() {
 				expect(nextSpy).to.have.been.calledWithExactly();

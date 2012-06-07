@@ -19,7 +19,7 @@ describe('integration/users/login.js', function() {
 			}
 			, uri: 'http://localhost:8080/login'
 			, jar: request.jar()
-			, json: { username: 'abc', password: 'def' }
+			, form: { username: 'abc', password: 'def' }
 		}
 		users.add({ username: 'abc', password: 'def' }, done);
 	});

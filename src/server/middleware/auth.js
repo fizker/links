@@ -23,19 +23,24 @@ function getUserAuthed(request, response, next) {
 		if(!user) {
 			return next({ status: 401 });
 		}
-			// TODO: set a cookie
-			response.cookie('x-user-token', user.token, {
-				maxAge: 3600000 // 1 hour
-			});
-			request.cookies['x-user-token'] = user.token;
-			return next();
+		next();
 	};
 };
 
 function postLogin(request, response, next) {
 	var user = request.body
 	  , userHasAuthed = getUserAuthed(request, response, next);
-	verifyUser(user.username, user.password, request, userHasAuthed);
+	verifyUser(user.username, user.password, request, function(err, user) {
+		if(err || !user) {
+			return userHasAuthed(err);
+		}
+		response.cookie('x-user-token', user.token, {
+			maxAge: 3600000 // 1 hour
+		});
+		request.cookies['x-user-token'] = user.token;
+
+		userHasAuthed(null, user);
+	});
 };
 
 function handleHttpCookie(request, next) {
