@@ -1,6 +1,6 @@
-describe('routes.links.js', function() {
-	var routes = require('../src/routes/links')
-	  , helper = require('./helpers/routes')
+describe('unit/routes/links.js', function() {
+	var routes = require('../../../src/routes/links')
+	  , helper = require('../../helpers/routes')
 	  , http
 	  , caller = helper.caller
 	  , storage
@@ -23,7 +23,7 @@ describe('routes.links.js', function() {
 					else return this.headers[key];
 				}
 			};
-		storage = 
+		storage =
 			{ get: sinon.stub()
 			, del: sinon.stub()
 			, add: sinon.stub()

@@ -12,21 +12,19 @@ var mongo = require('mongodb')
   , storage
 
 // Default values in case they are not set in options
-  , host = 'localhost'
-  , port = 27017
-  , dbName = 'finc-links-db'
+  , settings = require('./../settings').load('storage')
 
 function open(options, callback) {
 	storage = {
 		close: close,
 		links: links,
-		host: options.host || host,
-		port: options.port || port,
-		dbName: options.dbName || dbName
+		host: options.host || settings.host,
+		port: options.port || settings.port,
+		db: options.db || settings.db
 	};
 
 	server = new mongo.Server(storage.host, storage.port, { auto_reconnect: true });
-	db = new mongo.Db(storage.dbName, server)
+	db = new mongo.Db(storage.db, server)
 
 	storage.links = links(db);
 	storage.users = users(db);

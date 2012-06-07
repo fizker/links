@@ -28,6 +28,7 @@ Only major point-releases are listed. Struck-through numbers are finished.
 - <s>0.3</s>: First shot at client-side UI.
 - <s>0.4</s>: Bookmarklets.
 - <s>0.5</s>: Authorization (users, walls between links).
+    - <s>0.5.1</s>: Added support for cookies and signup.
 - 0.6: Server-deployment (heroku, mongohq?).
 - 0.7: Client-side UX (backbone, ajax, etc).
 - 0.8: One-page app (html routing, fallback to current model).

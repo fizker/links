@@ -1,7 +1,7 @@
-describe('storage.users.js', function() {
+describe('unit/storage/users.js', function() {
 	'use strict';
 
-	var factory = require('../src/storage/users')
+	var factory = require('../../../src/storage/users')
 	  , db
 	  , storage
 	  , callback
@@ -17,9 +17,33 @@ describe('storage.users.js', function() {
 			,save: sinon.stub()
 			};
 		db = {
-			collection: sinon.stub().withArgs('users').yields(null, userCollection)
+			collection: sinon.stub()
 		};
+		db.collection.withArgs('users').yields(null, userCollection);
 		storage = factory(db);
+	});
+	describe('When calling update(username, user)', function() {
+		beforeEach(function() {
+			storage.update('abc', { username: 'def', email: 'ghi' }, callback);
+		});
+		it('should query findAndModify for the old username', function() {
+			expect(userCollection.findAndModify)
+				.to.have.been.calledWithMatch({ username: 'abc' });
+		});
+		it('should supply the modified values', function() {
+			expect(userCollection.findAndModify)
+				.to.have.been.calledWithMatch({}, [], { $set: { username: 'def', email: 'ghi' } });
+		});
+		it('should pass the modified user to the callback', function() {
+			userCollection.findAndModify
+				.yield(null, {
+					username: 'def', email: 'ghi', token: 'jkl'
+				});
+			expect(callback)
+				.to.have.been.calledWith(null, {
+					username: 'def', email: 'ghi', token: 'jkl'
+				});
+		});
 	});
 	describe('When calling byToken(token)', function() {
 		describe('with valid token', function() {
@@ -48,7 +72,7 @@ describe('storage.users.js', function() {
 	});
 	describe('When calling verify(username, password)', function() {
 		describe('with valid credentials', function() {
-			var tokenGenerator = require('../src/token')
+			var tokenGenerator = require('../../../src/token')
 			beforeEach(function() {
 				sinon.stub(tokenGenerator, 'generate');
 				tokenGenerator.generate
@@ -98,20 +122,32 @@ describe('storage.users.js', function() {
 			});
 		});
 	});
-	describe('When calling add(username)', function() {
+	describe('When calling add(user)', function() {
+		var tokenGenerator = require('../../../src/token')
 		beforeEach(function() {
+			sinon.stub(tokenGenerator, 'generate');
+			tokenGenerator.generate
+				.withArgs('abc')
+				.returns('token-value');
+
 			userCollection.save
-				.withArgs({ username: 'abc', text:'def' })
 				.yields(null, { new: 'object' });
 			storage.add({ username: 'abc', text:'def' }, callback);
 		});
+		afterEach(function() {
+			tokenGenerator.generate.restore();
+		});
 		it('should call collection.save', function() {
 			expect(userCollection.save)
-				.to.have.been.calledWith({ username:'abc', text:'def' });
+				.to.have.been.calledWithMatch({ username:'abc', token: 'token-value', text:'def' });
 		});
 		it('should call callback with the saved object', function() {
 			expect(callback)
 				.to.have.been.calledWith(null, { new: 'object' });
+		});
+		it('should ask for a token as well', function() {
+			expect(tokenGenerator.generate)
+				.to.have.been.called;
 		});
 	});
 	describe('When calling del(username)', function() {

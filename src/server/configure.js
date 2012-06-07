@@ -27,6 +27,7 @@ function config(options) {
 		http.use(middleware.accept);
 		http.use(express.static(path.join(__dirname, '../../static')));
 		http.use(express.bodyParser());
+		http.use(express.cookieParser());
 		http.use(require('connect-xcors')({}));
 
 		http.use(http.router);

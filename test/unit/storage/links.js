@@ -1,7 +1,7 @@
-describe('storage.links.js', function() {
+describe('unit/storage/links.js', function() {
 	'use strict';
 
-	var factory = require('../src/storage/links')
+	var factory = require('../../../src/storage/links')
 	  , db
 	  , storage
 	  , callback
