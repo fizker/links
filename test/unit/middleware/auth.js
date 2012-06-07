@@ -1,5 +1,5 @@
 describe('unit/middleware/auth.js', function() {
-	var middleware = require('../../../src/server/middleware/auth')
+	var middleware = require('../../../src/middleware/auth')
 	  , request
 	  , response
 	  , nextSpy
