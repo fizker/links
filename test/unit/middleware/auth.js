@@ -7,7 +7,10 @@ describe('unit/middleware/auth.js', function() {
 	beforeEach(function() {
 		request = {
 			accepts: sinon.stub(),
-			header: sinon.stub(),
+			header: sinon.spy(function(key) {
+				return this.headers[key];
+			}),
+			headers: {},
 			storage: {
 				users: {
 					byToken: sinon.stub(),
@@ -40,7 +43,7 @@ describe('unit/middleware/auth.js', function() {
 	describe('When logging in and asking for html', function() {
 		beforeEach(function() {
 			request.accepts.withArgs('html').returns(true);
-			request.header.withArgs('x-user-token').returns('aaa');
+			request.headers['x-user-token'] = 'aaa';
 			request.storage.users.byToken.yields(null, { token: 'aaa' });
 			middleware(request, response, nextSpy);
 		});
@@ -76,27 +79,26 @@ describe('unit/middleware/auth.js', function() {
 				request.body = { username: 'abc', password: 'def' };
 				middleware.postLogin(request, response, nextSpy);
 			});
-			it('should not call next', function() {
+			it('should call next with error 401', function() {
 				expect(nextSpy)
-					.not.to.have.been.called;
-			});
-			it('should render the login-view', function() {
-				expect(response.render)
-					.to.have.been.calledWithMatch('login');
+					.to.have.been.calledWithMatch({ status: 401 });
 			});
 		});
 	});
 	describe('When using cookie', function() {
 		beforeEach(function() {
-
+			request.cookies['x-user-token'] = 'cookie';
+			middleware(request, response, nextSpy);
 		});
-		xit('should check the cookie as a token', function() {
+		it('should check the cookie as a token', function() {
+			expect(request.storage.users.byToken)
+				.to.have.been.calledWith('cookie');
 		});
 	});
 	describe('When using header-token', function() {
 		describe('that is valid', function() {
 			beforeEach(function() {
-				request.header.withArgs('x-user-token').returns('aaa');
+				request.headers['x-user-token'] = 'aaa';
 				request.storage.users.byToken.withArgs('aaa').yields(null, { username: 'abc' });
 				middleware(request, response, nextSpy);
 			});
@@ -109,7 +111,15 @@ describe('unit/middleware/auth.js', function() {
 			});
 		});
 		describe('that is invalid', function() {
-			it('should call next with an error');
+			beforeEach(function() {
+				request.headers['x-user-token'] = 'aaa';
+				request.storage.users.byToken.yields(null, null);
+				middleware(request, response, nextSpy);
+			});
+			it('should call next with an error', function() {
+				expect(nextSpy)
+					.to.have.been.calledWithMatch({ status: 401 });
+			});
 		});
 	});
 	describe('When using http-authentication', function() {
@@ -119,7 +129,7 @@ describe('unit/middleware/auth.js', function() {
 					// created with btoa('valid:creds')
 				  , asBase64 = 'dmFsaWQ6Y3JlZHM='
 
-				request.header.withArgs('Authorization').returns('Basic dmFsaWQ6Y3JlZHM=');
+				request.headers['Authorization'] = 'Basic dmFsaWQ6Y3JlZHM=';
 				middleware(request, response, nextSpy);
 			});
 			it('should call next', function() {
@@ -140,48 +150,23 @@ describe('unit/middleware/auth.js', function() {
 					// created with btoa('abc:def')
 				  , asBase64 = 'aW52YWxpZDpjcmVkcw=='
 
-				request.header.withArgs('Authorization').returns('Basic aW52YWxpZDpjcmVkcw==');
+				request.headers['Authorization'] = 'Basic aW52YWxpZDpjcmVkcw==';
 				middleware(request, response, nextSpy);
 			});
-			it('should call send with error status 401', function() {
-				expect(response.send)
-					.to.have.been.calledWith(401);
+			it('should call next with error status 401', function() {
+				expect(nextSpy)
+					.to.have.been.calledWithMatch({ status: 401 });
 			});
 		});
 	});
 	describe('When not authorized', function() {
-		describe('while requesting html', function() {
-			beforeEach(function() {
-				request.accepts.withArgs('html').returns(true);
-				request.accepts.withArgs('text/html').returns(true);
-				middleware(request, response, nextSpy);
-			});
-			it('should render the login view', function() {
-				var view = response.render.lastCall.args[0]
-				expect(view).to.have.string('login');
-			});
-			it('should not call send', function() {
-				expect(response.send).not.to.have.been.called;
-			});
-			it('should not call next', function() {
-				expect(nextSpy).not.to.have.been.called;
-			});
+		beforeEach(function() {
+			request.accepts.returns(false);
+			middleware(request, response, nextSpy);
 		});
-		describe('while not requesting html', function() {
-			beforeEach(function() {
-				request.accepts.returns(false);
-				middleware(request, response, nextSpy);
-			});
-			it('should send header 401', function() {
-				expect(response.send).to.have.been.calledWith(401);
-			});
-			it('should ask for basic auth in header', function() {
-				expect(response.headers['WWW-Authenticate'])
-					.to.have.string('Basic realm=')
-			});
-			it('should not call next', function() {
-				expect(nextSpy).not.to.have.been.called;
-			});
+		it('should call next with error 401', function() {
+			expect(nextSpy)
+				.to.have.been.calledWithMatch({ status: 401 });
 		});
 	});
 });

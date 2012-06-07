@@ -20,21 +20,15 @@ function auth(request, response, next) {
 
 function getUserAuthed(request, response, next) {
 	return function userHasAuthed(err, user) {
-		if(user) {
+		if(!user) {
+			return next({ status: 401 });
+		}
 			// TODO: set a cookie
 			response.cookie('x-user-token', user.token, {
 				maxAge: 3600000 // 1 hour
 			});
 			request.cookies['x-user-token'] = user.token;
 			return next();
-		}
-
-		if(request.accepts('html')) {
-			response.render('user.login.mustache');
-			return;
-		}
-		response.header('WWW-Authenticate', 'Basic realm="Fizker Inc Links"');
-		response.send(401);
 	};
 };
 
