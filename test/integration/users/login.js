@@ -19,6 +19,7 @@ describe('integration/users/login.js', function() {
 			}
 			, uri: 'http://localhost:8080/login'
 			, jar: request.jar()
+			, json: { username: 'abc', password: 'def' }
 		}
 		users.add({ username: 'abc', password: 'def' }, done);
 	});
@@ -33,8 +34,8 @@ describe('integration/users/login.js', function() {
 				request.post(options, callbackSpy);
 			});
 			it('should return code 200', function() {
-				expect(callbackSpy)
-					.to.have.been.calledWithMatch(null, { statusCode: 200 });
+				expect(callbackSpy.getCall(0).args[1].statusCode)
+					.to.be.within(200, 299);
 			});
 			it('should set a cookie to allow subsequent login', function(done) {
 				options.uri = 'http://localhost:8080/profile';
