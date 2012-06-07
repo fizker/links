@@ -53,10 +53,13 @@ describe('integration/users/profile.js', function() {
 			});
 			it('should return a token that is accepted for auth', function(done) {
 				var data = callbackSpy.getCall(0).args[2]
+				expect(data).to.have.property('token');
+
 				options.headers['x-user-token'] = data.token;
+				options.method = 'get';
 				request.get(options, function(err, response, data) {
-					expect(response)
-						.to.have.property('statusCode', 200);
+					expect(response.statusCode)
+						.to.equal(200);
 					done();
 				});
 			});

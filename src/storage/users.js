@@ -44,6 +44,7 @@ function verifyUser(username, password, callback) {
 };
 
 function addUser(user, callback) {
+	user.token = tokenGen.generate(user.username, user.password);
 	db.collection('users', function(err, collection) {
 		collection.save(user, callback);
 	});
@@ -79,6 +80,10 @@ function getUser(username, callback) {
 function updateUser(username, user, callback) {
 	db.collection('users', function(err, collection) {
 		var query = { username: username }
-		collection.findAndModify(query, [], { $set: user }, { new: true }, callback);
+		collection.findAndModify(query,
+			[],
+			{ $set: user },
+			{ new: true },
+			callback);
 	});
 };

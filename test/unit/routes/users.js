@@ -13,9 +13,11 @@ describe('unit/routes/users.js', function() {
 	beforeEach(function() {
 		originalAuth = middleware.auth;
 		middleware.auth = sinon.stub();
+		middleware.auth.postLogin = sinon.stub();
 		// If auth is not valid, the route is never hit.
 		// We only need to test successful auth here.
 		middleware.auth.yields();
+		middleware.auth.postLogin.yields();
 	});
 	afterEach(function() {
 		middleware.auth = originalAuth;
@@ -28,6 +30,7 @@ describe('unit/routes/users.js', function() {
 		response =
 			{ locals: {}
 			, render: sinon.spy()
+			, send: sinon.spy()
 			, local: function(key, val) {
 					if(val) this.locals[key] = val;
 					else return this.locals[key];
@@ -55,6 +58,22 @@ describe('unit/routes/users.js', function() {
 		routes({
 			http: http
 		});
+	});
+
+	describe('When posting to "/login"', function() {
+		beforeEach(function() {
+			request.body = { username: 'abc', password: 'def' };
+			caller(http.routes.post['/login'], request, response);
+		});
+		it('should not require auth', function() {
+			expect(middleware.auth)
+				.not.to.have.been.called;
+		});
+		it('should use the postLogin middleware', function() {
+			expect(middleware.auth.postLogin)
+				.to.have.been.called;
+		});
+		it('should redirect to "/"');
 	});
 
 	describe('When getting "/signup"', function() {

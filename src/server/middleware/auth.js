@@ -1,20 +1,31 @@
 'use strict';
 
 module.exports = auth
+auth.postLogin = postLogin;
 
 function auth(request, response, next) {
+	var userHasAuthed = getUserAuthed(request, response, next);
 	if(handleHttpAuth(request, userHasAuthed)) {
 		return;
 	}
 	if(handleHttpToken(request, userHasAuthed)) {
 		return;
 	}
-	// check other means of authing here (cookie, whatever).
+	if(handleHttpCookie(request, userHasAuthed)) {
+		return;
+	};
 
 	userHasAuthed(null, false);
+};
 
-	function userHasAuthed(err, result) {
-		if(result) {
+function getUserAuthed(request, response, next) {
+	return function userHasAuthed(err, user) {
+		if(user) {
+			// TODO: set a cookie
+			response.cookie('x-user-token', user.token, {
+				maxAge: 3600000 // 1 hour
+			});
+			request.cookies['x-user-token'] = user.token;
 			return next();
 		}
 
@@ -27,8 +38,23 @@ function auth(request, response, next) {
 	};
 };
 
+function postLogin(request, response, next) {
+	var user = request.body
+	  , userHasAuthed = getUserAuthed(request, response, next);
+	verifyUser(user.username, user.password, request, userHasAuthed);
+};
+
+function handleHttpCookie(request, next) {
+	var token = request.cookies['x-user-token'];
+	if(token) {
+		request.headers['x-user-token'] = token;
+		return handleHttpToken(request, next);
+	}
+	return false;
+};
+
 function handleHttpToken(request, next) {
-	var token = request.header('X-User-Token')
+	var token = request.header('x-user-token')
 	if(token) {
 		request.storage.users.byToken(token, function(err, user) {
 			request.user = user;

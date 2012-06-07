@@ -123,19 +123,31 @@ describe('unit/storage/users.js', function() {
 		});
 	});
 	describe('When calling add(user)', function() {
+		var tokenGenerator = require('../../../src/token')
 		beforeEach(function() {
+			sinon.stub(tokenGenerator, 'generate');
+			tokenGenerator.generate
+				.withArgs('abc')
+				.returns('token-value');
+
 			userCollection.save
-				.withArgs({ username: 'abc', text:'def' })
 				.yields(null, { new: 'object' });
 			storage.add({ username: 'abc', text:'def' }, callback);
 		});
+		afterEach(function() {
+			tokenGenerator.generate.restore();
+		});
 		it('should call collection.save', function() {
 			expect(userCollection.save)
-				.to.have.been.calledWith({ username:'abc', text:'def' });
+				.to.have.been.calledWithMatch({ username:'abc', token: 'token-value', text:'def' });
 		});
 		it('should call callback with the saved object', function() {
 			expect(callback)
 				.to.have.been.calledWith(null, { new: 'object' });
+		});
+		it('should ask for a token as well', function() {
+			expect(tokenGenerator.generate)
+				.to.have.been.called;
 		});
 	});
 	describe('When calling del(username)', function() {

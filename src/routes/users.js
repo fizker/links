@@ -7,7 +7,10 @@ function setup(options) {
 	var http = options.http
 
 	http.get('/login', getLogin);
+	http.post('/login', middleware.auth.postLogin, handleLogin);
+
 	http.get('/signup', getSignup);
+
 	http.get('/profile', middleware.auth, getProfile);
 	http.put('/profile', middleware.auth, putProfile);
 	http.post('/profile', postProfile);
@@ -30,6 +33,10 @@ function putProfile(request, response) {
 
 function getSignup(request, response) {
 	response.render('user.signup.mustache');
+};
+
+function handleLogin(request, response) {
+	response.render('user.login.mustache');
 };
 function getLogin(request, response) {
 	response.render('user.login.mustache');
