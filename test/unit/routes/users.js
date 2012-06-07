@@ -29,6 +29,7 @@ describe('unit/routes/users.js', function() {
 
 		response =
 			{ locals: {}
+			, cookie: sinon.spy()
 			, render: sinon.spy()
 			, redirect: sinon.spy()
 			, send: sinon.spy()
@@ -92,13 +93,13 @@ describe('unit/routes/users.js', function() {
 		});
 	});
 
-	describe('When posting to "/profile"', function() {
+	describe('When posting to "/signup"', function() {
 		beforeEach(function() {
 			request.body = {
 				username: 'abc',
 				password: 'def'
 			};
-			caller(http.routes.post['/profile'], request, response);
+			caller(http.routes.post['/signup'], request, response);
 		});
 		it('should not require auth', function() {
 			expect(middleware.auth).not.to.have.been.called;
@@ -114,6 +115,11 @@ describe('unit/routes/users.js', function() {
 			storage.add.yield(null, { a: 1, b: 2 });
 			expect(response.render)
 				.to.have.been.calledWithMatch('welcome', { a: 1, b: 2 });
+		});
+		it('should set a cookie', function() {
+			storage.add.yield(null, { a: 1, b: 2, token: 'aaa' });
+			expect(response.cookie)
+				.to.have.been.calledWith('x-user-token', 'aaa');
 		});
 	});
 	describe('When putting "/profile"', function() {
