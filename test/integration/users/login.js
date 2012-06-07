@@ -33,9 +33,9 @@ describe('integration/users/login.js', function() {
 				callbackSpy = sinon.spy(done);
 				request.post(options, callbackSpy);
 			});
-			it('should return code 200', function() {
+			it('should return code 302 (redirect)', function() {
 				expect(callbackSpy.getCall(0).args[1].statusCode)
-					.to.be.within(200, 299);
+					.to.equal(302);
 			});
 			it('should set a cookie to allow subsequent login', function(done) {
 				options.uri = 'http://localhost:8080/profile';

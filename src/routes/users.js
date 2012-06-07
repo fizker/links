@@ -36,7 +36,7 @@ function getSignup(request, response) {
 };
 
 function handleLogin(request, response) {
-	response.render('user.login.mustache');
+	response.redirect('/');
 };
 function getLogin(request, response) {
 	response.render('user.login.mustache');

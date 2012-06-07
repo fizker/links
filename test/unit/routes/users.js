@@ -30,6 +30,7 @@ describe('unit/routes/users.js', function() {
 		response =
 			{ locals: {}
 			, render: sinon.spy()
+			, redirect: sinon.spy()
 			, send: sinon.spy()
 			, local: function(key, val) {
 					if(val) this.locals[key] = val;
@@ -73,7 +74,10 @@ describe('unit/routes/users.js', function() {
 			expect(middleware.auth.postLogin)
 				.to.have.been.called;
 		});
-		it('should redirect to "/"');
+		it('should redirect to "/"', function() {
+			expect(response.redirect)
+				.to.have.been.calledWith('/');
+		});
 	});
 
 	describe('When getting "/signup"', function() {
