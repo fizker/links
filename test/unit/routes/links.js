@@ -1,6 +1,8 @@
 describe('unit/routes/links.js', function() {
 	var routes = require('../../../src/routes/links')
 	  , helper = require('../../helpers/routes')
+	  , middleware = require('../../../src/middleware')
+	  , originalAuth
 	  , http
 	  , caller = helper.caller
 	  , storage
@@ -8,8 +10,24 @@ describe('unit/routes/links.js', function() {
 	  , request
 
 	beforeEach(function() {
+		sinon.stub(middleware, 'auth');
+		middleware.auth.yields(null);
+	});
+	afterEach(function() {
+		middleware.auth.restore();
+	});
+
+	beforeEach(function() {
 		helper.setup();
 		http = helper.http;
+		request = { params: {} };
+		storage =
+			{ get: sinon.stub()
+			, del: sinon.stub()
+			, add: sinon.stub()
+			, update: sinon.stub()
+			};
+
 		response =
 			{ locals: {}
 			, render: sinon.spy()
@@ -22,12 +40,7 @@ describe('unit/routes/links.js', function() {
 					if(val) this.headers[key] = val;
 					else return this.headers[key];
 				}
-			};
-		storage =
-			{ get: sinon.stub()
-			, del: sinon.stub()
-			, add: sinon.stub()
-			, update: sinon.stub()
+			, storage: { links: storage }
 			};
 
 		routes({
@@ -36,6 +49,10 @@ describe('unit/routes/links.js', function() {
 		});
 	});
 	describe('When getting "/links/:url/edit', function() {
+		it('should require auth', function() {
+			caller(http.routes.get['/links/:url/edit'], request, response);
+			expect(middleware.auth).to.have.been.called;
+		});
 		describe('With a non-existing url', function() {
 			beforeEach(function() {
 				storage.get.yields(null, null);
@@ -74,6 +91,10 @@ describe('unit/routes/links.js', function() {
 		});
 	});
 	describe('When getting "/links/:url"', function() {
+		it('should require auth', function() {
+			caller(http.routes.get['/links/:url'], request, response);
+			expect(middleware.auth).to.have.been.called;
+		});
 		describe('with an existing url', function() {
 			beforeEach(function() {
 				storage.get.withArgs('abc').yields(null, { url: 'abc' });
@@ -113,6 +134,9 @@ describe('unit/routes/links.js', function() {
 			request = {};
 			caller(http.routes.get['/links'], request, response);
 		});
+		it('should require auth', function() {
+			expect(middleware.auth).to.have.been.called;
+		});
 		it('should return a list of links', function() {
 			var links = response.render.lastCall.args[1];
 			expect(links).to.eql([
@@ -121,6 +145,10 @@ describe('unit/routes/links.js', function() {
 		});
 	});
 	describe('When posting to "/links/:url"', function() {
+		it('should require auth', function() {
+			caller(http.routes.post['/links/:url'], request, response);
+			expect(middleware.auth).to.have.been.called;
+		});
 		beforeEach(function() {
 			storage.del.withArgs('abc').yields({ url: 'abc' });
 			storage.add.yields({ url: 'abc' });
@@ -177,6 +205,10 @@ describe('unit/routes/links.js', function() {
 		});
 	});
 	describe('When putting to "/links/:url"', function() {
+		it('should require auth', function() {
+			caller(http.routes.put['/links/:url'], request, response);
+			expect(middleware.auth).to.have.been.called;
+		});
 		describe('with invalid data', function() {
 			beforeEach(function() {
 				request = {
@@ -265,6 +297,10 @@ describe('unit/routes/links.js', function() {
 		});
 	});
 	describe('When posting to "/links"', function() {
+		it('should require auth', function() {
+			caller(http.routes.post['/links'], request, response);
+			expect(middleware.auth).to.have.been.called;
+		});
 		describe('and the data is invalid', function() {
 			beforeEach(function() {
 				request = {
@@ -331,6 +367,9 @@ describe('unit/routes/links.js', function() {
 					}
 				}
 			caller(http.routes.del['/links/:url'], request, response);
+		});
+		it('should require auth', function() {
+			expect(middleware.auth).to.have.been.called;
 		});
 		it('should remove the requested link', function() {
 			expect(storage.del).to.have.been.calledWith('abc');

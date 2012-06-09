@@ -4,6 +4,7 @@ module.exports = setupRoutes;
 
 var links
   , util = require('util')
+  , middleware = require('../middleware')
   , db
 
 function setupRoutes(options) {
@@ -12,17 +13,17 @@ function setupRoutes(options) {
 	db = options.storage.links;
 
 	setupRoutes.links = links = {};
-	http.get('/links', allLinks);
+	http.get('/links', middleware.auth, allLinks);
 
-	http.post('/links', validateLink, postLink);
-	http.get('/links/new', newLink);
+	http.post('/links', middleware.auth, validateLink, postLink);
+	http.get('/links/new', middleware.auth, newLink);
 
-	http.get('/links/:url', getLink);
-	http.put('/links/:url', validateLink, putLink);
-	http.post('/links/:url', validateLink, postUpdateLink);
-	http.del('/links/:url', deleteLink);
+	http.get('/links/:url', middleware.auth, getLink);
+	http.put('/links/:url', middleware.auth, validateLink, putLink);
+	http.post('/links/:url', middleware.auth, validateLink, postUpdateLink);
+	http.del('/links/:url', middleware.auth, deleteLink);
 
-	http.get('/links/:url/edit', editLink);
+	http.get('/links/:url/edit', middleware.auth, editLink);
 };
 function validateLink(request, response, next) {
 	var link = request.body
