@@ -1,6 +1,8 @@
 'use strict';
 
-module.exports = setup;
+module.exports = {
+	create: setup
+};
 
 var db
   , tokenGen = require('../token')

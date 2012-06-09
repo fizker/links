@@ -1,33 +1,38 @@
 describe('unit/middleware/auth.js', function() {
 	var middleware = require('../../../src/middleware/auth')
+	  , storage
 	  , request
 	  , response
 	  , nextSpy
 
 	beforeEach(function() {
+		storage = {
+			users: {
+				byToken: sinon.stub(),
+				verify: sinon.stub()
+			}
+			, bind: sinon.stub()
+		};
+		storage.bind.returns('bound-storage');
+		storage.users
+			.verify.yields(null, false);
+		storage.users
+			.verify.withArgs('valid', 'creds').yields(null, {
+				username: 'abc',
+				token: 'aaa'
+			});
+		storage.users
+			.byToken.yields(null, false);
+
 		request = {
 			accepts: sinon.stub(),
 			header: sinon.spy(function(key) {
 				return this.headers[key];
 			}),
 			headers: {},
-			storage: {
-				users: {
-					byToken: sinon.stub(),
-					verify: sinon.stub()
-				}
-			}
+			storage: storage
 			, cookies: {}
 		};
-		request.storage.users
-			.verify.yields(null, false);
-		request.storage.users
-			.verify.withArgs('valid', 'creds').yields(null, {
-				username: 'abc',
-				token: 'aaa'
-			});
-		request.storage.users
-			.byToken.yields(null, false);
 
 		response = {
 			cookie: sinon.spy(),
@@ -47,7 +52,7 @@ describe('unit/middleware/auth.js', function() {
 				middleware.postLogin(request, response, nextSpy);
 			});
 			it('should attempt to validate', function() {
-				expect(request.storage.users.verify)
+				expect(storage.users.verify)
 					.to.have.been.calledWith('valid', 'creds');
 			});
 			it('should call next', function() {
@@ -76,7 +81,7 @@ describe('unit/middleware/auth.js', function() {
 			middleware(request, response, nextSpy);
 		});
 		it('should check the cookie as a token', function() {
-			expect(request.storage.users.byToken)
+			expect(storage.users.byToken)
 				.to.have.been.calledWith('cookie');
 		});
 	});
@@ -84,7 +89,7 @@ describe('unit/middleware/auth.js', function() {
 		describe('that is valid', function() {
 			beforeEach(function() {
 				request.headers['x-user-token'] = 'aaa';
-				request.storage.users.byToken.withArgs('aaa').yields(null, { username: 'abc' });
+				storage.users.byToken.withArgs('aaa').yields(null, { username: 'abc' });
 				middleware(request, response, nextSpy);
 			});
 			it('should not set cookies', function() {
@@ -102,7 +107,7 @@ describe('unit/middleware/auth.js', function() {
 		describe('that is invalid', function() {
 			beforeEach(function() {
 				request.headers['x-user-token'] = 'aaa';
-				request.storage.users.byToken.yields(null, null);
+				storage.users.byToken.yields(null, null);
 				middleware(request, response, nextSpy);
 			});
 			it('should call next with an error', function() {
@@ -120,6 +125,17 @@ describe('unit/middleware/auth.js', function() {
 
 				request.headers['Authorization'] = 'Basic dmFsaWQ6Y3JlZHM=';
 				middleware(request, response, nextSpy);
+			});
+			it('should bind the storage to the user id', function() {
+				expect(storage.bind)
+					.to.have.been.calledWith({
+						username: 'abc'
+						, token: 'aaa'
+						});
+			});
+			it('should replace request.storage', function() {
+				expect(request.storage)
+					.to.equal('bound-storage');
 			});
 			it('should not set cookies', function() {
 				expect(response.cookie)

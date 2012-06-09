@@ -90,6 +90,7 @@ function verifyUser(username, password, request, next) {
 			return next(err);
 		}
 
+		request.storage = request.storage.bind(user);
 		request.user = user;
 		next(null, user);
 	});

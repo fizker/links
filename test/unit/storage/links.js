@@ -1,7 +1,7 @@
 describe('unit/storage/links.js', function() {
 	'use strict';
 
-	var factory = require('../../../src/storage/links')
+	var factory = require('../../../src/storage/links').create
 	  , db
 	  , storage
 	  , callback
@@ -19,12 +19,12 @@ describe('unit/storage/links.js', function() {
 		db = {
 			collection: sinon.stub().withArgs('links').yields(null, linkCollection)
 		};
-		storage = factory(db);
+		storage = factory({ user: '123' }, db);
 	});
 	describe('When calling update(url, link)', function() {
 		beforeEach(function() {
 			linkCollection.findAndModify
-				.withArgs({ url: 'abc' }, [], { $set: { url: 'def' } }, { new: true })
+				.withArgs({ _user: '123', url: 'abc' }, [], { $set: { url: 'def' } }, { new: true })
 				.yields(null, { url: 'def', text: 'ghi' });
 
 			storage.update('abc', { url: 'def' }, callback);
@@ -32,7 +32,7 @@ describe('unit/storage/links.js', function() {
 		it('calls findAndModify', function() {
 			expect(linkCollection.findAndModify)
 				.to.have.been
-					.calledWith({ url: 'abc' }, [], { $set: { url: 'def' } });
+					.calledWith({ _user: '123', url: 'abc' }, [], { $set: { url: 'def' } });
 		});
 		it('calls the callback with the changed link', function() {
 			expect(callback)
@@ -42,13 +42,13 @@ describe('unit/storage/links.js', function() {
 	describe('When calling add(link)', function() {
 		beforeEach(function() {
 			linkCollection.save
-				.withArgs({ url: 'abc', text:'def' })
+				.withArgs({ _user: '123', url: 'abc', text:'def' })
 				.yields(null, { new: 'object' });
 			storage.add({ url: 'abc', text:'def' }, callback);
 		});
 		it('should call collection.save', function() {
 			expect(linkCollection.save)
-				.to.have.been.calledWith({ url:'abc', text:'def' });
+				.to.have.been.calledWith({ _user: '123', url:'abc', text:'def' });
 		});
 		it('should call callback with the saved object', function() {
 			expect(callback)
@@ -58,13 +58,13 @@ describe('unit/storage/links.js', function() {
 	describe('When calling del(url)', function() {
 		beforeEach(function() {
 			linkCollection.remove
-				.withArgs({ url: 'abc' })
+				.withArgs({ _user: '123', url: 'abc' })
 				.yields(null, { url:'abc', text:'def' });
 			storage.del('abc', callback);
 		});
 		it('should ask the collection to remove the specified link', function() {
 			expect(linkCollection.remove)
-				.to.have.been.calledWith({ url: 'abc' });
+				.to.have.been.calledWith({ _user: '123', url: 'abc' });
 		});
 		it('should call callback with the removed object', function() {
 			expect(callback)
@@ -76,7 +76,7 @@ describe('unit/storage/links.js', function() {
 
 		beforeEach(function() {
 			linkCollection.findOne
-				.withArgs({ url: 'abc' })
+				.withArgs({ _user: '123', url: 'abc' })
 				.yields(null, { url: 'abc', text: 'def' });
 
 			storage.get('abc', callback);
@@ -99,7 +99,7 @@ describe('unit/storage/links.js', function() {
 			findResults.toArray.yields(null, [{url: 'a'}, {url: 'b'}]);
 
 			linkCollection.find
-				.withArgs()
+				.withArgs({ _user: '123' })
 				.returns(findResults);
 
 			storage.get(callback);
