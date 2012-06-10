@@ -5,12 +5,9 @@ module.exports = setupRoutes;
 var links
   , util = require('util')
   , middleware = require('../middleware')
-  , db
 
 function setupRoutes(options) {
 	var http = options.http
-
-	db = options.storage.links;
 
 	setupRoutes.links = links = {};
 	http.get('/links', middleware.auth, allLinks);
@@ -43,7 +40,7 @@ function newLink(request, response) {
 function editLink(request, response, next) {
 	var url = request.params.url
 
-	db.get(url, linkLoaded)
+	request.storage.links.get(url, linkLoaded)
 
 	function linkLoaded(err, link) {
 		if(!link) {
@@ -55,7 +52,7 @@ function editLink(request, response, next) {
 	};
 };
 function allLinks(request, response) {
-	db.get(function(err, data) {
+	request.storage.links.get(function(err, data) {
 		response.render('links', data);
 	});
 };
@@ -63,7 +60,7 @@ function allLinks(request, response) {
 function getLink(request, response, next) {
 	var url = request.params.url
 
-	db.get(url, function(err, link) {
+	request.storage.links.get(url, function(err, link) {
 		if(!link) {
 			next({ status: 404 });
 			return;
@@ -75,8 +72,7 @@ function getLink(request, response, next) {
 
 function postLink(request, response) {
 	var link = request.body
-
-	db.add(link, function(err, link) {
+	request.storage.links.add(link, function(err, link) {
 		response.local('message', 'link created');
 		response.local('status', 201);
 		response.header('location', util.format('/links/%s', link.encodedUrl));
@@ -87,7 +83,7 @@ function postUpdateLink(request, response) {
 	var link = request.body
 	  , url = request.params.url
 
-	db.update(url, link, function() {
+	request.storage.links.update(url, link, function() {
 		response.render('link.post.mustache', link);
 	});
 };
@@ -95,14 +91,14 @@ function putLink(request, response) {
 	var url = request.params.url
 	  , link = request.body
 
-	db.add(link, function(err, link) {
+	request.storage.links.add(link, function(err, link) {
 		response.render('link', link);
 	});
 };
 function deleteLink(request, response) {
 	var url = request.params.url
 
-	db.del(url, function(err, link) {
+	request.storage.links.del(url, function(err, link) {
 		response.render('link.del.mustache', { status: 200 });
 	});
 };

@@ -1,5 +1,6 @@
 describe('unit/routes/links.js', function() {
 	var routes = require('../../../src/routes/links')
+	  , _ = require('underscore')
 	  , helper = require('../../helpers/routes')
 	  , middleware = require('../../../src/middleware')
 	  , originalAuth
@@ -20,13 +21,18 @@ describe('unit/routes/links.js', function() {
 	beforeEach(function() {
 		helper.setup();
 		http = helper.http;
-		request = { params: {} };
+
 		storage =
 			{ get: sinon.stub()
 			, del: sinon.stub()
 			, add: sinon.stub()
 			, update: sinon.stub()
 			};
+
+		request = {
+			params: {}
+			, storage: { links: storage }
+		};
 
 		response =
 			{ locals: {}
@@ -44,8 +50,7 @@ describe('unit/routes/links.js', function() {
 			};
 
 		routes({
-			http: http,
-			storage: { links: storage }
+			http: http
 		});
 	});
 	describe('When getting "/links/:url/edit', function() {
@@ -56,11 +61,11 @@ describe('unit/routes/links.js', function() {
 		describe('With a non-existing url', function() {
 			beforeEach(function() {
 				storage.get.yields(null, null);
-				request = {
+				_(request).extend({
 					params: {
 						url: 'abc'
 					}
-				};
+				});
 				caller(http.routes.get['/links/:url/edit'], request, response);
 			});
 			it('should not call render', function() {
@@ -73,11 +78,11 @@ describe('unit/routes/links.js', function() {
 		describe('With an existing url', function() {
 			beforeEach(function() {
 				storage.get.withArgs('abc').yields(null, { url: 'abc' });
-				request = {
+				_(request).extend({
 					params: {
 						url: 'abc'
 					}
-				};
+				});
 				caller(http.routes.get['/links/:url/edit'], request, response);
 			});
 			it('should return the link', function() {
@@ -98,11 +103,11 @@ describe('unit/routes/links.js', function() {
 		describe('with an existing url', function() {
 			beforeEach(function() {
 				storage.get.withArgs('abc').yields(null, { url: 'abc' });
-				request = {
+				_(request).extend({
 					params: {
 						url: 'abc'
 					}
-				};
+				});
 				caller(http.routes.get['/links/:url'], request, response);
 			});
 			it('should return the requested link', function() {
@@ -113,11 +118,11 @@ describe('unit/routes/links.js', function() {
 		describe('with an unknown url', function() {
 			beforeEach(function() {
 				storage.get.yields(null, null);
-				request = {
+				_(request).extend({
 					params: {
 						url: 'abc'
 					}
-				};
+				});
 				caller(http.routes.get['/links/:url'], request, response);
 			});
 			it('should call next with error code 404', function() {
@@ -131,7 +136,6 @@ describe('unit/routes/links.js', function() {
 				[{ url: 'abc' }
 				,{ url: 'def' }
 				]);
-			request = {};
 			caller(http.routes.get['/links'], request, response);
 		});
 		it('should require auth', function() {
@@ -155,14 +159,14 @@ describe('unit/routes/links.js', function() {
 		});
 		describe('with the same url', function() {
 			beforeEach(function() {
-				request = {
+				_(request).extend({
 					params: {
 						url: 'abc'
 					},
 					body: {
 						url: 'abc'
 					}
-				};
+				});
 				storage.update.yields({ url: 'abc' });
 				caller(http.routes.post['/links/:url'], request, response);
 			});
@@ -177,14 +181,14 @@ describe('unit/routes/links.js', function() {
 		});
 		describe('with updated urls', function() {
 			beforeEach(function() {
-				request = {
+				_(request).extend({
 					params: {
 						url: 'abc'
 					},
 					body: {
 						url: 'def'
 					}
-				};
+				});
 				storage.update.yields(null, { url: 'def' });
 				caller(http.routes.post['/links/:url'], request, response);
 			});
@@ -211,14 +215,14 @@ describe('unit/routes/links.js', function() {
 		});
 		describe('with invalid data', function() {
 			beforeEach(function() {
-				request = {
+				_(request).extend({
 					params: {
 						url: 'abc'
 					},
 					body: {
 						text: 'def'
 					}
-				};
+				});
 				caller(http.routes.put['/links/:url'], request, response);
 			});
 			it('should not store the link', function() {
@@ -241,7 +245,7 @@ describe('unit/routes/links.js', function() {
 						url: 'after adding'
 					});
 					routes.links['abc'] = { text: 'old' };
-					request = {
+					_(request).extend({
 						params: {
 							url: 'abc'
 						},
@@ -249,7 +253,7 @@ describe('unit/routes/links.js', function() {
 							url: 'abc',
 							text: 'def'
 						}
-					};
+					});
 					caller(http.routes.put['/links/:url'], request, response);
 				});
 				it('should be replaced', function() {
@@ -267,7 +271,7 @@ describe('unit/routes/links.js', function() {
 			describe('and there is no data there', function() {
 				beforeEach(function() {
 					storage.add.yields(null, { url: 'after adding' });
-					request = {
+					_(request).extend({
 						params: {
 							url: 'http://a.b/c'
 						},
@@ -275,7 +279,7 @@ describe('unit/routes/links.js', function() {
 							url: 'http://a.b/c',
 							text: 'def'
 						}
-					};
+					});
 					caller(http.routes.put['/links/:url'], request, response);
 				});
 				it('should be created', function() {
@@ -303,12 +307,12 @@ describe('unit/routes/links.js', function() {
 		});
 		describe('and the data is invalid', function() {
 			beforeEach(function() {
-				request = {
-						params: {},
-						body: {
-							title: 'def'
-						}
+				_(request).extend({
+					params: {},
+					body: {
+						title: 'def'
 					}
+				});
 				caller(http.routes.post['/links'], request, response);
 			});
 			it('should not store the link', function() {
@@ -331,13 +335,13 @@ describe('unit/routes/links.js', function() {
 					url: 'http://a.b/c',
 					title: 'def'
 				});
-				request = {
-						params: {},
-						body: {
-							url: 'http://a.b/c',
-							title: 'def'
-						}
+				_(request).extend({
+					params: {},
+					body: {
+						url: 'http://a.b/c',
+						title: 'def'
 					}
+				});
 				caller(http.routes.post['/links'], request, response);
 			});
 			it('should store the link', function() {
@@ -361,11 +365,11 @@ describe('unit/routes/links.js', function() {
 	describe('When making delete-request', function() {
 		beforeEach(function() {
 			storage.del.yields(null, { url: 'abc' });
-			request = {
-					params: {
-						url: 'abc'
-					}
+			_(request).extend({
+				params: {
+					url: 'abc'
 				}
+			});
 			caller(http.routes.del['/links/:url'], request, response);
 		});
 		it('should require auth', function() {
