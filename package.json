@@ -24,6 +24,8 @@
 		"sinon-chai": "git://github.com/fizker/sinon-chai.git#sinon-1.4"
 		,"request": "2.9.202"
 		,"btoa": "1.0.0"
+		,"fasync": "1.0.0"
+		,"underscore": "1.3.3"
 	},
 	"optionalDependencies": {},
 	"scripts": {
