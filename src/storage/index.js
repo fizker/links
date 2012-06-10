@@ -20,13 +20,12 @@ function open(options, callback) {
 		host: options.host || settings.host,
 		port: options.port || settings.port,
 		db: options.db || settings.db
+		, bind: bind
 	};
 
 	server = new mongo.Server(storage.host, storage.port, { auto_reconnect: true });
 	db = new mongo.Db(storage.db, server)
 
-	//storage.links = links(db);
-	storage.bind = bind;
 	storage.users = users.create(db);
 
 	db.open(function(err) {
@@ -50,7 +49,7 @@ function clone(obj) {
 
 function bind(user) {
 	var storage = clone(this);
-	storage.links = links.create(db);
+	storage.links = links.create({ _user: user._id }, db);
 	return storage;
 };
 

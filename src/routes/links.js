@@ -72,6 +72,7 @@ function getLink(request, response, next) {
 
 function postLink(request, response) {
 	var link = request.body
+
 	request.storage.links.add(link, function(err, link) {
 		response.local('message', 'link created');
 		response.local('status', 201);

@@ -78,7 +78,15 @@ describe('unit/middleware/auth.js', function() {
 	describe('When using cookie', function() {
 		beforeEach(function() {
 			request.cookies['x-user-token'] = 'cookie';
+			storage.users.byToken.withArgs('cookie')
+				.yields(null, { username: 'abc' });
 			middleware(request, response, nextSpy);
+		});
+		it('should bind the storage to the user id', function() {
+			expect(storage.bind)
+				.to.have.been.calledWith({
+					username: 'abc'
+					});
 		});
 		it('should check the cookie as a token', function() {
 			expect(storage.users.byToken)
@@ -91,6 +99,12 @@ describe('unit/middleware/auth.js', function() {
 				request.headers['x-user-token'] = 'aaa';
 				storage.users.byToken.withArgs('aaa').yields(null, { username: 'abc' });
 				middleware(request, response, nextSpy);
+			});
+			it('should bind the storage to the user id', function() {
+				expect(storage.bind)
+					.to.have.been.calledWith({
+						username: 'abc'
+						});
 			});
 			it('should not set cookies', function() {
 				expect(response.cookie)

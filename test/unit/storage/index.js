@@ -50,13 +50,15 @@ describe('unit/storage/index.js', function() {
 		});
 		describe('and binding storage to a user', function() {
 			beforeEach(function() {
-				storage = storage.bind({});
+				storage = storage.bind({ _id: 'abc', username: 'def' });
 			});
 			it('should have links-storage', function() {
-				expect(links.create)
-					.to.have.been.called;
 				expect(storage)
 					.to.have.property('links');
+			});
+			it('should pass the proper information to the bound storage', function() {
+				expect(links.create)
+					.to.have.been.calledWithMatch({ _user: 'abc' });
 			});
 		});
 	});
