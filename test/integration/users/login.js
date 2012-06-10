@@ -1,5 +1,6 @@
 describe('integration/users/login.js', function() {
 	var request = require('request')
+	  , url = require('url')
 	  , mongoHelper = require('../../helpers/mongo')
 	  , users
 	  , callbackSpy
@@ -17,7 +18,7 @@ describe('integration/users/login.js', function() {
 			headers: {
 				accept: 'text/html'
 			}
-			, uri: 'http://localhost:8080/login'
+			, url: url.parse('http://localhost:8080/login')
 			, jar: request.jar()
 			, form: { username: 'abc', password: 'def' }
 		}
@@ -38,7 +39,7 @@ describe('integration/users/login.js', function() {
 					.to.equal(302);
 			});
 			it('should set a cookie to allow subsequent login', function(done) {
-				options.uri = 'http://localhost:8080/profile';
+				options.url.path = '/profile';
 				options.headers.accept = 'application/json';
 				options.method = 'get';
 				request.get(options, function(err, response, data) {
