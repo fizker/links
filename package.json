@@ -2,7 +2,7 @@
 	"author": "Benjamin Horsleben <benjamin@fizkerinc.dk>",
 	"name": "links",
 	"description": "A simple links-repository.",
-	"version": "0.5.2",
+	"version": "0.5.3",
 	"repository": {
 	"type": "git",
 	"url": "git://github.com/fizker/links.git"

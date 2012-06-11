@@ -14,6 +14,7 @@ function setup(options) {
 
 	http.get('/profile', middleware.auth, getProfile);
 	http.put('/profile', middleware.auth, putProfile);
+	http.del('/profile', middleware.auth, delProfile);
 };
 
 function getProfile(request, response) {
@@ -23,6 +24,12 @@ function putProfile(request, response) {
 	var user = request.user
 	request.storage.users.update(user.username, request.body, function(err, user) {
 		response.render('user.profile.mustache', user);
+	});
+};
+function delProfile(request, response) {
+	var user = request.user
+	request.storage.users.del(user.username, function(err, user) {
+		response.render('user.deleted.mustache');
 	});
 };
 

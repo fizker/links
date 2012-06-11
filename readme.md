@@ -40,7 +40,7 @@ all features will be ready at `x.y.0`, though.
         `/login` is functional.
     - <s>0.5.1</s>: Added support for cookies and signup.
     - <s>0.5.2</s>: Auth on all link endpoints; user-wall on links.
-    - 0.5.3: Deleting users, and their data.
+    - <s>0.5.3</s>: Deleting users, and their data.
     - 0.5.4: Auth on bookmarklet.
 - 0.6: Server-deployment (heroku, mongohq?).
 - 0.7: Client-side UX (backbone, ajax, etc).

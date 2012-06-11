@@ -56,7 +56,13 @@ function delUser(username, callback) {
 		username: username
 	};
 	db.collection('users', function(err, collection) {
-		collection.remove(query, callback);
+		collection.findAndModify(query, [], {}, { remove: true }, function(err, user) {
+			db.collection('links', function(err, collection) {
+				collection.remove({ _user: user._id.toString() }, function(err) {
+					callback(err, user);
+				});
+			});
+		});
 	});
 };
 

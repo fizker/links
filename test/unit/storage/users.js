@@ -6,6 +6,7 @@ describe('unit/storage/users.js', function() {
 	  , storage
 	  , callback
 	  , userCollection
+	  , linkCollection
 
 	beforeEach(function() {
 		callback = sinon.spy();
@@ -16,10 +17,14 @@ describe('unit/storage/users.js', function() {
 			,remove: sinon.stub()
 			,save: sinon.stub()
 			};
+		linkCollection =
+			{remove: sinon.stub()
+			};
 		db = {
 			collection: sinon.stub()
 		};
 		db.collection.withArgs('users').yields(null, userCollection);
+		db.collection.withArgs('links').yields(null, linkCollection);
 		storage = factory(db);
 	});
 	describe('When calling update(username, user)', function() {
@@ -152,18 +157,23 @@ describe('unit/storage/users.js', function() {
 	});
 	describe('When calling del(username)', function() {
 		beforeEach(function() {
-			userCollection.remove
-				.withArgs({ username: 'abc' })
-				.yields(null, { username:'abc', text:'def' });
+			userCollection.findAndModify
+				.yields(null, { _id: '123', username:'abc', text:'def' });
+			linkCollection.remove
+				.yields(null);
 			storage.del('abc', callback);
 		});
 		it('should ask the collection to remove the specified user', function() {
-			expect(userCollection.remove)
-				.to.have.been.calledWith({ username: 'abc' });
+			expect(userCollection.findAndModify)
+				.to.have.been.calledWithMatch({ username: 'abc' }, [], {}, { remove: true });
 		});
 		it('should call callback with the removed object', function() {
 			expect(callback)
-				.to.have.been.calledWith(null, { username:'abc', text:'def' });
+				.to.have.been.calledWithMatch(null, { username:'abc', text:'def' });
+		});
+		it('should delete all refs from the links-collections', function() {
+			expect(linkCollection.remove)
+				.to.have.been.calledWith({ _user: '123' });
 		});
 	});
 	describe('When calling get(username)', function() {

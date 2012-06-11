@@ -1,7 +1,9 @@
 describe('integration/users/profile.js', function() {
 	var request = require('request')
 	  , btoa = require('btoa')
+	  , url = require('url')
 	  , mongoHelper = require('../../helpers/mongo')
+	  , storage
 	  , users
 	  , req
 	  , callbackSpy
@@ -9,19 +11,23 @@ describe('integration/users/profile.js', function() {
 	  , options
 
 	before(function(done) {
-		mongoHelper.open(function(err, storage) {
+		mongoHelper.open(function(err, st) {
+			storage = st;
 			users = storage.users;
 			done();
 		});
 	});
 
-	beforeEach(function(done) {
-		options = {
+	function opts() {
+		return {
 			headers: {
 				Accept: 'application/json'
 			}
-			, uri: 'http://localhost:8080/profile'
+			, url: url.parse('http://localhost:8080/profile')
 		};
+	};
+	beforeEach(function(done) {
+		options = opts();
 		req = request
 
 		users.add({ token: 'token', username: 'abc', password: 'def', email: 'a@b.cd' }, done);
@@ -79,6 +85,36 @@ describe('integration/users/profile.js', function() {
 	describe('When authorized', function() {
 		beforeEach(function() {
 			options.headers['x-user-token'] = 'token';
+		});
+		describe('and deleting "/profile"', function() {
+			beforeEach(function(done) {
+				var opt = opts();
+				opt.url.path = '/links';
+				opt.json = { url: 'http://abc.test' };
+				request.post(opt, function(err) {
+					if(err) return done(err);
+					callbackSpy = sinon.spy(done);
+					request.del(options, callbackSpy);
+				});
+			});
+			it('should respond with 204', function() {
+				expect(callbackSpy)
+					.to.have.been.calledWithMatch(null, { statusCode: 204 });
+			});
+			it('should remove the user', function(done) {
+				storage.users.get('abc', function(err, user) {
+					expect(user)
+						.to.not.be.ok;
+					done();
+				});
+			});
+			it('should remove all associated links', function(done) {
+				storage.links.get('http://abc.test', function(err, link) {
+					expect(link)
+						.to.not.be.ok;
+					done();
+				});
+			});
 		});
 		describe('and putting to /profile', function() {
 			beforeEach(function(done) {
