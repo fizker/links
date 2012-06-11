@@ -49,7 +49,7 @@ function clone(obj) {
 
 function bind(user) {
 	var storage = clone(this);
-	storage.links = links.create({ _user: user._id }, db);
+	storage.links = links.create({ user: user._id }, db);
 	return storage;
 };
 

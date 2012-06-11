@@ -58,7 +58,7 @@ describe('unit/storage/index.js', function() {
 			});
 			it('should pass the proper information to the bound storage', function() {
 				expect(links.create)
-					.to.have.been.calledWithMatch({ _user: 'abc' });
+					.to.have.been.calledWithMatch({ user: 'abc' });
 			});
 		});
 	});
