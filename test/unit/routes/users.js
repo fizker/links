@@ -60,6 +60,20 @@ describe('unit/routes/users.js', function() {
 		});
 	});
 
+	describe('When deleting "/profile"', function() {
+		beforeEach(function() {
+			request.user = { username: 'abc' };
+			caller(http.routes.del['/profile'], request, response);
+		});
+		it('should require auth', function() {
+			expect(middleware.auth)
+				.to.have.been.called;
+		});
+		it('should delete the user', function() {
+			expect(storage.del)
+				.to.have.been.calledWith('abc');
+		});
+	});
 	describe('When posting to "/login"', function() {
 		beforeEach(function() {
 			request.body = { username: 'abc', password: 'def' };
