@@ -68,6 +68,13 @@ describe('integration/users/profile.js', function() {
 			var data = JSON.parse(callbackSpy.getCall(0).args[2])
 			expect(data.token).to.equal('token');
 		});
+		it('should allow for 2 consecutive logins', function(done) {
+			request.get(options, function(err, response, data) {
+				expect(response.statusCode)
+					.to.equal(200);
+				done();
+			});
+		});
 	});
 	describe('When authorized', function() {
 		beforeEach(function() {

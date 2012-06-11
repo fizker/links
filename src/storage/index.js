@@ -17,17 +17,16 @@ var mongo = require('mongodb')
 function open(options, callback) {
 	storage = {
 		close: close,
-		links: links,
 		host: options.host || settings.host,
 		port: options.port || settings.port,
 		db: options.db || settings.db
+		, bind: bind
 	};
 
 	server = new mongo.Server(storage.host, storage.port, { auto_reconnect: true });
 	db = new mongo.Db(storage.db, server)
 
-	storage.links = links(db);
-	storage.users = users(db);
+	storage.users = users.create(db);
 
 	db.open(function(err) {
 		if(err) { return callback(err, {
@@ -38,6 +37,20 @@ function open(options, callback) {
 
 		callback(null, storage);
 	});
+};
+
+function clone(obj) {
+	return Object.keys(obj)
+		.reduce(function(o, key) {
+			o[key] = obj[key];
+			return o;
+		}, {});
+};
+
+function bind(user) {
+	var storage = clone(this);
+	storage.links = links.create({ user: user._id }, db);
+	return storage;
 };
 
 function close(callback) {

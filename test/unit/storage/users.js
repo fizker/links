@@ -1,7 +1,7 @@
 describe('unit/storage/users.js', function() {
 	'use strict';
 
-	var factory = require('../../../src/storage/users')
+	var factory = require('../../../src/storage/users').create
 	  , db
 	  , storage
 	  , callback

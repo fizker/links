@@ -23,6 +23,9 @@ function getUserAuthed(request, response, next) {
 		if(!user) {
 			return next({ status: 401 });
 		}
+
+		request.storage = request.storage.bind(user);
+		request.user = user;
 		next();
 	};
 };
@@ -55,10 +58,7 @@ function handleHttpCookie(request, next) {
 function handleHttpToken(request, next) {
 	var token = request.header('x-user-token')
 	if(token) {
-		request.storage.users.byToken(token, function(err, user) {
-			request.user = user;
-			next(null, user);
-		});
+		request.storage.users.byToken(token, next);
 		return true;
 	}
 };
@@ -90,7 +90,6 @@ function verifyUser(username, password, request, next) {
 			return next(err);
 		}
 
-		request.user = user;
 		next(null, user);
 	});
 	return true;

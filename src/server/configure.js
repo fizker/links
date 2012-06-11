@@ -6,7 +6,7 @@ var express = require('express')
   , hogan = require('hogan.js')
   , path = require('path')
   , fs = require('fs')
-  , middleware = require('./middleware')
+  , middleware = require('./../middleware')
 
   , viewsDir = path.join(__dirname, '../../views')
   // We would want a dev-switch here, and use precompiled when not in dev mode.

@@ -7,12 +7,10 @@ describe('unit/routes/users.js', function() {
 	  , response
 	  , request
 
-	  , middleware = require('../../../src/server/middleware')
-	  , originalAuth
+	  , middleware = require('../../../src/middleware')
 
 	beforeEach(function() {
-		originalAuth = middleware.auth;
-		middleware.auth = sinon.stub();
+		sinon.stub(middleware, 'auth');
 		middleware.auth.postLogin = sinon.stub();
 		// If auth is not valid, the route is never hit.
 		// We only need to test successful auth here.
@@ -20,7 +18,7 @@ describe('unit/routes/users.js', function() {
 		middleware.auth.postLogin.yields();
 	});
 	afterEach(function() {
-		middleware.auth = originalAuth;
+		middleware.auth.restore();
 	});
 
 	beforeEach(function() {
@@ -146,6 +144,10 @@ describe('unit/routes/users.js', function() {
 				.to.have.been.calledWithMatch('profile', {
 					a: 1, b: 2
 				});
+		});
+		it('should require auth', function() {
+			expect(middleware.auth)
+				.to.have.been.called;
 		});
 	});
 	describe('When getting "/profile"', function() {

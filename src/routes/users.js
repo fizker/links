@@ -1,7 +1,7 @@
 
 module.exports = setup;
 
-var middleware = require('../server/middleware')
+var middleware = require('../middleware')
 
 function setup(options) {
 	var http = options.http
