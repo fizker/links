@@ -1,11 +1,12 @@
 describe('integration/links/basics.js', function() {
 	var url = require('url')
-	  , _ = require('underscore')
 	  , request = require('request')
+	  , fasync = require('fasync')
 	  , requestOptions
 	  , getOptions
 	  , storageHelper = require('../../helpers/mongo')
 	  , storage
+	  , user
 
 	before(function(done) {
 		storageHelper.open(function(err, st) {
@@ -15,18 +16,18 @@ describe('integration/links/basics.js', function() {
 	});
 
 	beforeEach(function(done) {
-		requestOptions = {
-			url: url.parse('http://localhost:8080')
-			, headers: {
-				accept: 'application/json'
-				, 'x-user-token': 'aaa'
-			}
-		};
+		requestOptions = opts();
 		getOptions = opts();
-		storage.users.add({ username: 'abc', token: 'aaa' }, done);
+		storage.users.add({ username: 'abc', token: 'aaa' }, function(err, u) {
+			user = u;
+			done(err);
+		});
 	});
 	afterEach(function(done) {
-		storage.users.del('abc', done);
+		var pool = fasync.pool();
+		storage.links.clean(user._id, pool.register());
+		storage.users.del('abc', pool.register());
+		pool.whenEmpty(done);
 	});
 	describe('When posting to "/links"', function() {
 		var result
@@ -55,6 +56,12 @@ describe('integration/links/basics.js', function() {
 	});
 
 	function opts() {
-		return _(requestOptions).clone();
+		return {
+			url: url.parse('http://localhost:8080')
+			, headers: {
+				accept: 'application/json'
+				, 'x-user-token': 'aaa'
+			}
+		};
 	};
 });

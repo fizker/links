@@ -23,6 +23,9 @@ describe('integration/users/signup.js', function() {
 
 		users.add({ token: 'token', username: 'abc', password: 'def', email: 'a@b.cd' }, done);
 	});
+	afterEach(function(done) {
+		users.del('abc', done);
+	});
 	describe('When not authorized', function() {
 		describe('and posting to "/signup"', function() {
 			beforeEach(function(done) {

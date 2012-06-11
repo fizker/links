@@ -1,7 +1,7 @@
 describe('integration/links/multi-user.js', function() {
 	var storageHelper = require('../../helpers/mongo')
 	  , storage
-	  , _ = require('underscore')
+	  , testUsers
 	  , async = require('fasync')
 	  , url = require('url')
 	  , request = require('request')
@@ -15,20 +15,20 @@ describe('integration/links/multi-user.js', function() {
 	});
 
 	beforeEach(function(done) {
-		var pool = async.pool();
-		storage.users.add({ username: 'abc', token: 'aaa' }, pool.register());
-		storage.users.add({ username: 'def', token: 'bbb' }, pool.register());
+		testUsers = [];
+		var pool = async.pool()
+		  , push = function(err, user) { if(err) done(err); testUsers.push(user); }
+		storage.users.add({ username: 'abc', token: 'aaa' }, pool.register(push));
+		storage.users.add({ username: 'def', token: 'bbb' }, pool.register(push));
 		pool.whenEmpty(done);
 
-		requestOptions = {
-			headers: {
-				accept: 'application/json'
-			}
-			, url: url.parse('http://localhost:8080/links')
-		};
+		requestOptions = opts();
 	});
 	afterEach(function(done) {
 		var pool = async.pool();
+		testUsers.forEach(function(user) {
+			storage.links.clean(user._id, pool.register());
+		});
 		storage.users.del('abc', pool.register());
 		storage.users.del('def', pool.register());
 		pool.whenEmpty(done);
@@ -61,6 +61,11 @@ describe('integration/links/multi-user.js', function() {
 	});
 
 	function opts() {
-		return _(requestOptions).clone();
+		return {
+			headers: {
+				accept: 'application/json'
+			}
+			, url: url.parse('http://localhost:8080/links')
+		};
 	};
 });

@@ -13,10 +13,29 @@ function connect(done) {
 	done(null, {
 		disconnect: disconnect
 		, users: users(db)
+		, links: links(db)
 	});
 
 	function disconnect() {
 		db.close();
+	};
+};
+
+function links(db) {
+	return {
+		get: linkGet
+		, clean: linkClean
+	};
+
+	function linkGet(url, callback) {
+		db.collection('links', function(err, collection) {
+			collection.findOne({ url: url }, callback);
+		});
+	};
+	function linkClean(userid, callback) {
+		db.collection('links', function(err, collection) {
+			collection.remove({ _user: userid }, callback);
+		});
 	};
 };
 

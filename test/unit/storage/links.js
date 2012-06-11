@@ -17,8 +17,9 @@ describe('unit/storage/links.js', function() {
 			,save: sinon.stub()
 			};
 		db = {
-			collection: sinon.stub().withArgs('links').yields(null, linkCollection)
+			collection: sinon.stub()
 		};
+		db.collection.withArgs('links').yields(null, linkCollection);
 		storage = factory({ user: '123' }, db);
 	});
 	describe('When calling update(url, link)', function() {
