@@ -32,12 +32,9 @@ describe('integration/links/basics.js', function() {
 	describe('When posting to "/links"', function() {
 		var result
 		beforeEach(function(done) {
-			requestOptions.url.path = '/links';
+			requestOptions.json = { url: 'http://a.bc' };
 
-			var options = opts();
-			options.json = { url: 'http://a.bc' };
-
-			request.post(options, function(err, res, data) {
+			request.post(requestOptions, function(err, res, data) {
 				result = data;
 				done();
 			});
@@ -57,7 +54,7 @@ describe('integration/links/basics.js', function() {
 
 	function opts() {
 		return {
-			url: url.parse('http://localhost:8080')
+			url: url.parse('http://localhost:8080/links')
 			, headers: {
 				accept: 'application/json'
 				, 'x-user-token': 'aaa'
