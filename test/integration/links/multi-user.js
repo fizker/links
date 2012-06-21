@@ -18,8 +18,15 @@ describe('integration/links/multi-user.js', function() {
 		testUsers = [];
 		var pool = async.pool()
 		  , push = function(err, user) { if(err) done(err); testUsers.push(user); }
-		storage.users.add({ username: 'abc', token: 'aaa' }, pool.register(push));
-		storage.users.add({ username: 'def', token: 'bbb' }, pool.register(push));
+		  , now = new Date().toISOString()
+		storage.users.add(
+			{ username: 'abc'
+			, tokens: [ { key: 'aaa', created: now } ]
+			}, pool.register(push));
+		storage.users.add(
+			{ username: 'def'
+			, tokens: [ { key: 'bbb', created: now } ]
+			}, pool.register(push));
 		pool.whenEmpty(done);
 
 		requestOptions = opts();
