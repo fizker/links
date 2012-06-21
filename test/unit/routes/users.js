@@ -53,6 +53,7 @@ describe('unit/routes/users.js', function() {
 
 		request = {
 			storage: { users: storage }
+			, accepts: sinon.stub()
 		};
 
 		routes({
@@ -76,6 +77,7 @@ describe('unit/routes/users.js', function() {
 	});
 	describe('When posting to "/login"', function() {
 		beforeEach(function() {
+			request.accepts.withArgs('html').returns(true);
 			request.body = { username: 'abc', password: 'def' };
 			caller(http.routes.post['/login'], request, response);
 		});

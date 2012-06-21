@@ -19,7 +19,14 @@ describe('unit/middleware/auth.js', function() {
 		storage.users
 			.verify.withArgs('valid', 'creds').yields(null, {
 				username: 'abc',
-				token: 'aaa'
+				tokens:
+					[ { key: 'aaa'
+					  , created: '2012-01-01T12:00:00Z'
+					  }
+					, { key: 'newest-token'
+					  , created: '2012-01-02T12:00:00Z'
+					  }
+					]
 			});
 		storage.users
 			.byToken.yields(null, false);
@@ -61,7 +68,12 @@ describe('unit/middleware/auth.js', function() {
 			});
 			it('should set a cookie', function() {
 				expect(response.cookie)
-					.to.have.been.calledWithMatch('token', 'aaa');
+					.to.have.been.calledWithMatch('token', 'newest-token');
+			});
+			it('should replace the tokens-array with the newest token', function() {
+				expect(request.user)
+					.to.have.property('token', 'newest-token')
+				expect(request.user).not.to.have.property('tokens');
 			});
 		});
 		describe('with invalid credentials', function() {
@@ -84,9 +96,9 @@ describe('unit/middleware/auth.js', function() {
 		});
 		it('should bind the storage to the user id', function() {
 			expect(storage.bind)
-				.to.have.been.calledWith({
+				.to.have.been.calledWithMatch({
 					username: 'abc'
-					});
+				});
 		});
 		it('should check the cookie as a token', function() {
 			expect(storage.users.byToken)
@@ -102,9 +114,9 @@ describe('unit/middleware/auth.js', function() {
 			});
 			it('should bind the storage to the user id', function() {
 				expect(storage.bind)
-					.to.have.been.calledWith({
+					.to.have.been.calledWithMatch({
 						username: 'abc'
-						});
+					});
 			});
 			it('should not set cookies', function() {
 				expect(response.cookie)
@@ -115,7 +127,7 @@ describe('unit/middleware/auth.js', function() {
 			});
 			it('should attach user info to the request', function() {
 				expect(request.user)
-					.to.eql({ username: 'abc' });
+					.to.approximate({ username: 'abc' });
 			});
 		});
 		describe('that is invalid', function() {
@@ -142,10 +154,11 @@ describe('unit/middleware/auth.js', function() {
 			});
 			it('should bind the storage to the user id', function() {
 				expect(storage.bind)
-					.to.have.been.calledWith({
-						username: 'abc'
-						, token: 'aaa'
-						});
+					.to.have.been.calledWith(
+						{ username: 'abc'
+						, token: 'newest-token'
+						}
+					);
 			});
 			it('should replace request.storage', function() {
 				expect(request.storage)

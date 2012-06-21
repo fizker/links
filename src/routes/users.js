@@ -44,7 +44,11 @@ function postSignup(request, response) {
 };
 
 function handleLogin(request, response) {
-	response.redirect('/');
+	if(request.accepts('html')) {
+		response.redirect('/');
+	} else {
+		response.send(request.user);
+	}
 };
 function getLogin(request, response) {
 	response.render('user.login.mustache');
