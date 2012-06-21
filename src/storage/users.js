@@ -22,7 +22,7 @@ function setup(database) {
 
 function byToken(token, callback) {
 	db.collection('users', function(err, collection) {
-		var query = { token: token }
+		var query = { 'tokens.key': token }
 		collection.findOne(query, function(err, data) {
 			callback(null, data || null);
 		});
@@ -36,7 +36,7 @@ function verifyUser(username, password, callback) {
 		collection.findAndModify(
 			query
 			, []
-			, { $set: { token: token } }
+			, { $push: { tokens: token } }
 			, { new: true }
 			, function(err, data)
 		{
@@ -46,7 +46,7 @@ function verifyUser(username, password, callback) {
 };
 
 function addUser(user, callback) {
-	user.token = tokenGen.generate(user.username, user.password);
+	user.tokens = [ tokenGen.generate(user.username, user.password) ];
 	db.collection('users', function(err, collection) {
 		collection.save(user, callback);
 	});
