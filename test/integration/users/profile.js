@@ -30,7 +30,12 @@ describe('integration/users/profile.js', function() {
 		options = opts();
 		req = request
 
-		users.add({ token: 'token', username: 'abc', password: 'def', email: 'a@b.cd' }, done);
+		users.add(
+			{ tokens: [ { key: 'token', created: new Date().toISOString() } ]
+			, username: 'abc'
+			, password: 'def'
+			, email: 'a@b.cd'
+			}, done);
 	});
 	afterEach(function(done) {
 		users.del('abc', done);
