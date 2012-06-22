@@ -24,6 +24,13 @@ function getUserAuthed(request, response, next) {
 			return next({ status: 401 });
 		}
 
+		if(request.header('x-user-token')) {
+			user.token = request.header('x-user-token');
+		} else if(user.tokens) {
+			user.token = getLatestToken(user);
+		}
+		delete user.tokens;
+
 		request.storage = request.storage.bind(user);
 		request.user = user;
 		next();
@@ -37,13 +44,22 @@ function postLogin(request, response, next) {
 		if(err || !user) {
 			return userHasAuthed(err);
 		}
-		response.cookie('x-user-token', user.token, {
+		var token = getLatestToken(user)
+		response.cookie('x-user-token', token, {
 			maxAge: 3600000 // 1 hour
 		});
-		request.cookies['x-user-token'] = user.token;
+		request.cookies['x-user-token'] = token;
 
 		userHasAuthed(null, user);
 	});
+};
+
+function getLatestToken(user) {
+	return user.token = user.tokens.reduce(function(newest, current) {
+		return newest.created < current.created
+			? current
+			: newest
+	}).key;
 };
 
 function handleHttpCookie(request, next) {

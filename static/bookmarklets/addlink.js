@@ -1,6 +1,7 @@
 !function() {
 	var text = prompt('Link description:')
 	  , data
+	  , token = location.search.match(/token=([a-f0-9]+)/)[1]
 
 	if(!text) return;
 
@@ -21,6 +22,7 @@
 		request.open('PUT', serviceUrl + encodedUrl, async);
 		request.onerror = errorCallback;
 		request.onload = successCallback;
+		request.setRequestHeader('x-user-token', token);
 		request.setRequestHeader('Content-type', 'application/json');
 		request.setRequestHeader('Accept', 'application/json');
 		request.send(JSON.stringify(data));

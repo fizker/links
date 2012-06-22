@@ -1,9 +1,10 @@
-describe('token.js', function() {
+describe('unit/token.js', function() {
 	var generator = require('../../src/token')
 	  , crypto = require('crypto')
 	  , digester
 	describe('When generating tokens', function() {
 		var result
+		  , originalDate = Date
 		beforeEach(function() {
 			digester = {
 				digest: sinon.stub()
@@ -11,7 +12,16 @@ describe('token.js', function() {
 			};
 			sinon.stub(crypto, 'createHash');
 
-			sinon.stub(Date, 'now');
+			global.Date = sinon.stub();
+			var fakeDate =
+				{ toISOString: sinon.stub()
+				, getTime: sinon.stub()
+				};
+			fakeDate.toISOString.returns('2012-01-01T12:00:00Z');
+			fakeDate.getTime.returns(123);
+			Date.returns(fakeDate);
+
+			Date.now = sinon.stub();
 			Date.now.returns(123);
 
 			crypto.createHash
@@ -20,7 +30,7 @@ describe('token.js', function() {
 			result = generator.generate('abc', 'def', 'ghi');
 		});
 		afterEach(function() {
-			Date.now.restore();
+			global.Date = originalDate;
 			crypto.createHash.restore();
 		});
 		it('should pass the values and a salt into a hashing method', function() {
@@ -30,7 +40,7 @@ describe('token.js', function() {
 				.to.have.been.calledWith('hex');
 		});
 		it('returns the result', function() {
-			expect(result).to.eql('digest');
+			expect(result).to.deep.equal({ key: 'digest', created: '2012-01-01T12:00:00Z' });
 		});
 	});
 });

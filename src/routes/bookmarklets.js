@@ -15,7 +15,12 @@ function setupRoutes(options) {
 		,'A bookmarklet for adding the current page to the list of links')
 
 	http.get('/bookmarklets', function(request, response) {
-		response.render('bookmarklets.list.mustache', bookmarklets);
+		response.render('bookmarklets.list.mustache'
+			, bookmarklets.map(function(bm) {
+				bm.bookmarklet = bm.bookmarklet.replace('{{token}}', request.user.bookmarkletToken);
+				return bm;
+			})
+		);
 	});
 
 	function loadBookmarklet(name, title, text) {

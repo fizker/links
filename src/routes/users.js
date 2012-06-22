@@ -38,14 +38,25 @@ function getSignup(request, response) {
 };
 function postSignup(request, response) {
 	request.storage.users.add(request.body, function(err, user) {
-		response.cookie('x-user-token', user.token);
+		var token = getUserToken(user);
+		response.cookie('x-user-token', token);
 		response.render('user.welcome.mustache', user);
 	});
 };
 
 function handleLogin(request, response) {
-	response.redirect('/');
+	if(request.accepts('html')) {
+		response.redirect('/');
+	} else {
+		response.send(request.user);
+	}
 };
 function getLogin(request, response) {
 	response.render('user.login.mustache');
 }
+
+function getUserToken(user) {
+	user.token = user.tokens[0].key
+	delete user.tokens;
+	return user.token;
+};

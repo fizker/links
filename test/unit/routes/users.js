@@ -53,6 +53,7 @@ describe('unit/routes/users.js', function() {
 
 		request = {
 			storage: { users: storage }
+			, accepts: sinon.stub()
 		};
 
 		routes({
@@ -76,6 +77,7 @@ describe('unit/routes/users.js', function() {
 	});
 	describe('When posting to "/login"', function() {
 		beforeEach(function() {
+			request.accepts.withArgs('html').returns(true);
 			request.body = { username: 'abc', password: 'def' };
 			caller(http.routes.post['/login'], request, response);
 		});
@@ -124,12 +126,20 @@ describe('unit/routes/users.js', function() {
 				});
 		});
 		it('should render a welcome site', function() {
-			storage.add.yield(null, { a: 1, b: 2 });
+			storage.add.yield(null, { a: 1, b: 2, tokens: [ { key: 'aaa' } ] });
 			expect(response.render)
-				.to.have.been.calledWithMatch('welcome', { a: 1, b: 2 });
+				.to.have.been.calledWithMatch('welcome');
+		});
+		it('should only return a single token', function() {
+			storage.add.yield(null, { tokens: [ { key: 'abc' } ] });
+
+			var user = response.render.lastCall.args[1]
+			expect(user)
+				.to.have.property('token', 'abc')
+				.and.not.to.have.property('tokens')
 		});
 		it('should set a cookie', function() {
-			storage.add.yield(null, { a: 1, b: 2, token: 'aaa' });
+			storage.add.yield(null, { a: 1, b: 2, tokens: [ { key: 'aaa' } ] });
 			expect(response.cookie)
 				.to.have.been.calledWith('x-user-token', 'aaa');
 		});

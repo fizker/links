@@ -42,11 +42,11 @@ describe('unit/storage/users.js', function() {
 		it('should pass the modified user to the callback', function() {
 			userCollection.findAndModify
 				.yield(null, {
-					username: 'def', email: 'ghi', token: 'jkl'
+					username: 'def', email: 'ghi', tokens: [ 'jkl' ]
 				});
 			expect(callback)
 				.to.have.been.calledWith(null, {
-					username: 'def', email: 'ghi', token: 'jkl'
+					username: 'def', email: 'ghi', tokens: [ 'jkl' ]
 				});
 		});
 	});
@@ -54,7 +54,7 @@ describe('unit/storage/users.js', function() {
 		describe('with valid token', function() {
 			beforeEach(function() {
 				userCollection.findOne
-					.withArgs({ token: 'aaa' })
+					.withArgs({ 'tokens.key': 'aaa' })
 					.yields(null, { username: 'abc' });
 				storage.byToken('aaa', callback);
 			});
@@ -82,16 +82,16 @@ describe('unit/storage/users.js', function() {
 				sinon.stub(tokenGenerator, 'generate');
 				tokenGenerator.generate
 					.withArgs('abc', 'def')
-					.returns('token-value');
+					.returns({ key: 'token-value', created: '2012-01-01T12:00:00Z' });
 
 				userCollection.findAndModify
 					.withArgs(
 						{ username: 'abc', password: 'def' }
 						, []
-						, { $set: { token: 'token-value' } }
+						, { $push: { tokens: { key: 'token-value', created: '2012-01-01T12:00:00Z' } } }
 						, { new: true }
 					)
-					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi', token: 'token-value' });
+					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi', tokens: [ { key: 'token-value by findAndModify' } ] });
 				userCollection.findOne
 					.withArgs({ username: 'abc', password: 'def' })
 					.yields(null, { username: 'abc', password: 'def', otherValue: 'ghi' });
@@ -110,8 +110,8 @@ describe('unit/storage/users.js', function() {
 						});
 			});
 			it('should calculate a token', function() {
-				expect(callback)
-					.to.have.been.calledWithMatch(null, { token: 'token-value' });
+				expect(callback.lastCall.args[1].tokens)
+					.to.approximate([ { key: 'token-value by findAndModify' } ]);
 			});
 		});
 		describe('with invalid credentials', function() {
@@ -143,8 +143,8 @@ describe('unit/storage/users.js', function() {
 			tokenGenerator.generate.restore();
 		});
 		it('should call collection.save', function() {
-			expect(userCollection.save)
-				.to.have.been.calledWithMatch({ username:'abc', token: 'token-value', text:'def' });
+			expect(userCollection.save.lastCall.args[0])
+				.to.approximate({ username:'abc', tokens: [ 'token-value' ], text:'def' });
 		});
 		it('should call callback with the saved object', function() {
 			expect(callback)

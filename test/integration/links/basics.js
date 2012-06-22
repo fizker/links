@@ -18,7 +18,12 @@ describe('integration/links/basics.js', function() {
 	beforeEach(function(done) {
 		requestOptions = opts();
 		getOptions = opts();
-		storage.users.add({ username: 'abc', token: 'aaa' }, function(err, u) {
+		storage.users.add
+			( { username: 'abc'
+			  , tokens: [ { key: 'aaa', created: new Date().toISOString() } ]
+			  }
+			, function(err, u)
+		{
 			user = u;
 			done(err);
 		});
